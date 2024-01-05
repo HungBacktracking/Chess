@@ -1,0 +1,79 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Let\'s Chess</string>
+
+    <!--pieces-->
+    <string name="bishop">bishop</string>
+    <string name="knight">knight</string>
+    <string name="rook">rook</string>
+    <string name="queen">queen</string>
+
+    <!--main activity-->
+    <string name="game_start_button">Start Game</string>
+    <string name="settings_button">Settings</string>
+    <string name="about_button">About</string>
+
+    <!--settings-->
+    <string name="settings_header">settings</string>
+    <string name="preference_display_title">display mode</string>
+    <string name="preference_display_summary">choose between classic and modern piece set</string>
+    <string name="preference_display_dialog">choose display mode</string>
+    <string name="preference_timer_group">timer</string>
+    <string name="preference_timer_title">count time</string>
+    <string name="preference_vibrations_title">vibrate</string>
+    <string name="preference_time_begin">time at the beginning</string>
+    <string name="preference_time_added">time added after each move</string>
+
+    <string name="utility_close">go back to main menu</string>
+
+    <!--about-->
+    <string name="about_header">about</string>
+    <string name="about_app">This app is designed by Jakub Riegel. \nDiscover more on jrie.eu.</string>
+    <string name="about_icons_begin">Icons made by:\u0020</string>
+    <string name="about_FlatIcon">Flat Icon</string>
+    <string name="about_icons_and">\u0020and\u0020</string>
+    <string name="about_FreePik">Freepik</string>
+    <string name="about_flaticon_link">\u0020from www.flaticon.com</string>
+
+    <!--game activity-->
+    <string name="game_menu_button">menu</string>
+
+    <string name="promotion_description">Choose the piece you want to promote to</string>
+
+    <string name="leave_game_header">Do you really want to leave the game?</string>
+    <string name="leave_game_confirm">yes</string>
+    <string name="leave_game_decline">no</string>
+
+    <!--end of the game fragment-->
+    <string name="white_won">White won!</string>
+    <string name="black_won">Black won!</string>
+    <string name="draw">It\'s draw!</string>
+
+    <string name="end_game_menu_button">go to menu</string>
+    <string name="end_game_play_again_button">play again</string>
+    <string name="end_ame_show_board_button">show board</string>
+    <string name="end_game_share_board_button">share board</string>
+
+    <!--game menu-->
+    <string name="game_menu_end_button">end game</string>
+    <string name="game_menu_continue_button">continue</string>
+
+    <!--check-->
+    <string name="toast_check">check!</string>
+
+    <!--draw-->
+    <string name="draw_toast_text">your opponent offers draw</string>
+
+    <!--surrender fragment-->
+    <string name="surrender_confirm_button">surrender</string>
+    <string name="surrender_decline_button" tools:ignore="ButtonCase">cancel</string>
+
+    <!--set time fragment-->
+    <string name="timer_set_up_header">set the timer</string>
+    <string name="timer_beginning_text">time at the beginning of the game</string>
+    <string name="timer_add_text">time added after each move</string>
+    <string name="confirm_time_button">start</string>
+
+    <!--board sharing-->
+    <string name="toast_board_sharing">board image saved to the gallery</string>
+    <string name="toast_board_sharing_failed">try again</string>
+</resources>
