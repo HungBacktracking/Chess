@@ -26,8 +26,8 @@
     <string name="utility_close">go back to main menu</string>
 
     <!--about-->
-    <string name="about_header">about</string>
-    <string name="about_app">This app is designed by Jakub Riegel. \nDiscover more on jrie.eu.</string>
+    <string name="about_header">About</string>
+    <string name="about_app">This app is designed by Hưng Backtracking. \nDiscover more on https://github.com/HungBacktracking/Chess.</string>
     <string name="about_icons_begin">Icons made by:\u0020</string>
     <string name="about_FlatIcon">Flat Icon</string>
     <string name="about_icons_and">\u0020and\u0020</string>
