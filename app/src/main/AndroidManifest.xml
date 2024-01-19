@@ -32,6 +32,9 @@
         <activity android:name="com.backtracking.chess.GameActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"/>
+        <activity android:name="com.backtracking.chess.ChooseModeActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
         <activity android:name="com.backtracking.chess.CategoryActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"/>

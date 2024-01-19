@@ -13,6 +13,11 @@
     <string name="about_button">About</string>
 
     <!--category activity-->
+    <string name="find_match_button">Find a Match</string>
+    <string name="play_local_button">Challenge a Friend</string>
+    <string name="play_with_AI_button">Play vs Computer</string>
+
+    <!--choose mode activity-->
     <string name="classic_mode_button">Classic Mode</string>
     <string name="transformer_mode_button">Transformer Mode</string>
     <string name="special_display_button">Hidden Piece Mode</string>

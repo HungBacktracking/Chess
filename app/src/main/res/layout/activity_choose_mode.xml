@@ -33,18 +33,18 @@
 
         <Button
             style="@style/mainButtonStyle"
-            android:id="@+id/find_match_button"
-            android:text="@string/find_match_button"/>
+            android:id="@+id/classic_mode_button"
+            android:text="@string/classic_mode_button"/>
 
         <Button
             style="@style/mainButtonStyle"
-            android:id="@+id/play_local_button"
-            android:text="@string/play_local_button"/>
+            android:id="@+id/transformer_mode_button"
+            android:text="@string/transformer_mode_button"/>
 
         <Button
             style="@style/mainButtonStyle"
-            android:id="@+id/play_with_AI_button"
-            android:text="@string/play_with_AI_button"/>
+            android:id="@+id/special_display_button"
+            android:text="@string/special_display_button"/>
 
     </LinearLayout>
 

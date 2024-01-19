@@ -13,24 +13,24 @@ public class CategoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
 
-        Button startClassicButton = findViewById(R.id.classic_mode_button);
-        startClassicButton.setOnClickListener(view -> {
-            Intent startGameActivity = new Intent(getApplicationContext(), GameActivity.class);
-            startGameActivity.putExtra("mode", "classic");
+        Button playOnlineButton = findViewById(R.id.find_match_button);
+        playOnlineButton.setOnClickListener(view -> {
+            Intent startGameActivity = new Intent(getApplicationContext(), ChooseModeActivity.class);
+            startGameActivity.putExtra("category", "online");
             startActivity(startGameActivity);
         });
 
-        Button startTransformerButton = findViewById(R.id.transformer_mode_button);
-        startTransformerButton.setOnClickListener(view -> {
-            Intent startGameActivity = new Intent(getApplicationContext(), GameActivity.class);
-            startGameActivity.putExtra("mode", "transformer");
+        Button playLocalButton = findViewById(R.id.play_local_button);
+        playLocalButton.setOnClickListener(view -> {
+            Intent startGameActivity = new Intent(getApplicationContext(), ChooseModeActivity.class);
+            startGameActivity.putExtra("category", "local");
             startActivity(startGameActivity);
         });
 
-        Button startHiddenPieceButton = findViewById(R.id.special_display_button);
-        startHiddenPieceButton.setOnClickListener(view -> {
-            Intent startGameActivity = new Intent(getApplicationContext(), GameActivity.class);
-            startGameActivity.putExtra("mode", "hidden");
+        Button playWithAIButton = findViewById(R.id.play_with_AI_button);
+        playWithAIButton.setOnClickListener(view -> {
+            Intent startGameActivity = new Intent(getApplicationContext(), ChooseModeActivity.class);
+            startGameActivity.putExtra("category", "AI");
             startActivity(startGameActivity);
         });
     }

@@ -37,6 +37,7 @@ import java.util.Objects;
 
 public class GameActivity extends AppCompatActivity implements GameManagement {
     String mode;
+    boolean category;
 
     private Game game;
 
