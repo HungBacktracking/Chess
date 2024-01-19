@@ -21,6 +21,15 @@ public class Pawn extends Piece {
 
     }
 
+    public Pawn(Context c, byte _color, Position initPos) {
+        super(c, _color, initPos);
+        type = Const.PAWN;
+        strokeColor = ContextCompat.getColor(context, R.color.colorPawn);
+        if (color == Const.WHITE) image = context.getResources().getDrawable(R.drawable.white_pawn);
+        else image = context.getResources().getDrawable(R.drawable.black_pawn);
+
+    }
+
     @Override
     public Position initialPosition() {
         if (color == Const.WHITE) return new Position(whitePawns++, 1);

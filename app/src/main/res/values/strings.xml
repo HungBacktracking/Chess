@@ -12,6 +12,11 @@
     <string name="settings_button">Settings</string>
     <string name="about_button">About</string>
 
+    <!--category activity-->
+    <string name="classic_mode_button">Classic Mode</string>
+    <string name="transformer_mode_button">Transformer Mode</string>
+    <string name="special_display_button">Hidden Piece Mode</string>
+
     <!--settings-->
     <string name="settings_header">settings</string>
     <string name="preference_display_title">display mode</string>

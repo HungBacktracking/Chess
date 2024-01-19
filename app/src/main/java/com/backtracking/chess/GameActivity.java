@@ -25,6 +25,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.backtracking.chess.Pieces.Piece;
 import com.backtracking.chess.Views.Board;
@@ -35,6 +36,7 @@ import java.util.Date;
 import java.util.Objects;
 
 public class GameActivity extends AppCompatActivity implements GameManagement {
+    String mode;
 
     private Game game;
 
@@ -67,12 +69,12 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
 
         // getting settings
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String displayStr = preferences.getString(getResources().getString(R.string.display_key), "");
-        if(Objects.equals(displayStr, "")) displayMode = Const.CLASSIC_MODE; // default preferences don't work on some devices
-        else if (Objects.equals(displayStr, getResources().getString(R.string.classic_mode))) displayMode = Const.CLASSIC_MODE;
-        else  displayMode = Const.MODERN_MODE;
         boolean timerOn = preferences.getBoolean(getResources().getString(R.string.timer_on_key), false);
         vibrations = preferences.getBoolean(getResources().getString(R.string.vibrations_on_key), false);
+
+        mode = getIntent().getStringExtra("mode");
+        if ("hidden".equals(mode)) displayMode = Const.MODERN_MODE;
+        else displayMode = Const.CLASSIC_MODE;
 
         // setting up timers
         int beginningTime = 0;
@@ -216,7 +218,7 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
     public void resetGame(){
         Piece.resetAll();
         game = new Game(this, this);
-        game.start();
+        game.start(mode);
         drawState = Const.NO_DRAW;
         pads.get(Const.WHITE).reset();
         pads.get(Const.BLACK).reset();

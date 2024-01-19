@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="eu.jrie.lets_chess.MainActivity"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:contentDescription="@string/app_name"
+            android:layout_marginBottom="15dp"
+            android:src="@drawable/chess_logo"/>
+
+        <TextView
+            android:layout_width="250dp"
+            android:layout_height="70dp"
+            android:layout_marginBottom="30dp"
+
+            android:text="@string/app_name"
+            android:textAlignment="gravity"
+            android:gravity="center"
+            android:textSize="40sp"
+            android:textAllCaps="false"/>
+
+        <Button
+            style="@style/mainButtonStyle"
+            android:id="@+id/classic_mode_button"
+            android:text="@string/classic_mode_button"/>
+
+        <Button
+            style="@style/mainButtonStyle"
+            android:id="@+id/transformer_mode_button"
+            android:text="@string/transformer_mode_button"/>
+
+        <Button
+            style="@style/mainButtonStyle"
+            android:id="@+id/special_display_button"
+            android:text="@string/special_display_button"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

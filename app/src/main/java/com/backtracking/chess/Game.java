@@ -3,6 +3,7 @@ package com.backtracking.chess;
 import android.content.Context;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.Toast;
 
 import com.backtracking.chess.Pieces.Bishop;
 import com.backtracking.chess.Pieces.King;
@@ -18,6 +19,7 @@ import java.util.ListIterator;
 
 
 class Game {
+    String mode;
     byte state;
     private byte previousState;
     List<Position> movePointers;
@@ -37,7 +39,8 @@ class Game {
         gameActivity = gA;
     }
 
-    void start(){
+    void start(String m_mode){
+        this.mode = m_mode;
         state = Const.STATE_SELECT;
         previousState = state;
         pieces = new ArrayList<>();
@@ -148,6 +151,12 @@ class Game {
                             }
                         for (Position i : attackPointers)
                             if (Position.areEqual(i, touchPosition)){
+                                if(activePiece instanceof Pawn){ // check promotion possibility
+                                    if(activePiece.color == Const.WHITE
+                                            && activePiece.position.y == 6) promotion(activePiece);
+                                    else if(activePiece.color == Const.BLACK && activePiece.position.y == 1) promotion(activePiece);
+                                }
+
                                 if(activePiece instanceof Pawn) if(!pieceOnSquare(i)){
                                     if(activePiece.color == Const.WHITE)
                                         capture(getPieceOn(new Position(touchPosition.x, touchPosition.y - 1)));
@@ -157,11 +166,6 @@ class Game {
                                 if(pieceOnSquare(touchPosition)) capture(getPieceOn(touchPosition));
 
                                 activePiece.moveTo(touchPosition);
-                                if(activePiece instanceof Pawn){ // check promotion possibility
-                                    if(activePiece.color == Const.WHITE
-                                            && activePiece.position.y == 7) promotion(activePiece);
-                                    else if(activePiece.position.y == 0) promotion(activePiece);
-                                }
                                 changeTurn();
                                 break;
                             }
@@ -404,7 +408,39 @@ class Game {
         capturedPieces.add(capturedPiece);
         pieces.remove(capturedPiece);
         gameActivity.updatePads(capturedPiece);
+        if (activePiece instanceof King || !"transformer".equals(mode))
+
+        if(activePiece instanceof Pawn){ // check promotion possibility
+            if(activePiece.color == Const.WHITE
+                    && activePiece.position.y == 6) return;
+            else if(activePiece.color == Const.BLACK && activePiece.position.y == 1) return;
+        }
+
+        Class<?> capturedPieceType = capturedPiece.getClass();
+        Piece newPiece = createNewPiece(capturedPieceType, activePiece.color, activePiece.position);
+        pieces.add(newPiece);
+        pieces.remove(activePiece);
+        activePiece = newPiece;
+
     }
+
+    private Piece createNewPiece(Class<?> pieceType, byte color, Position position) {
+        if (pieceType == Pawn.class) {
+            return new Pawn(context, color, position);
+        }
+        else if (pieceType == Rook.class) {
+            return new Rook(context, color, position);
+        } else if (pieceType == Knight.class) {
+            return new Knight(context, color, position);
+        } else if (pieceType == Bishop.class) {
+            return new Bishop(context, color, position);
+        } else if (pieceType == Queen.class) {
+            return new Queen(context, color, position);
+        } else {
+            throw new IllegalArgumentException("Unknown piece type: " + pieceType);
+        }
+    }
+
 
     private void promotion(Piece promotedPawn){
         pause();

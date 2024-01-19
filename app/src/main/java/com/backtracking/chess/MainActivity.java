@@ -26,8 +26,8 @@ public class MainActivity extends AppCompatActivity implements UtilityFragment.I
 
         Button startGameButton = findViewById(R.id.start_game_button);
         startGameButton.setOnClickListener(view -> {
-            Intent startGameActivity = new Intent(getApplicationContext(), GameActivity.class);
-            startActivity(startGameActivity);
+            Intent chooseModeActivity = new Intent(getApplicationContext(), CategoryActivity.class);
+            startActivity(chooseModeActivity);
         });
 
         Button settingsButton = findViewById(R.id.settings_button);
