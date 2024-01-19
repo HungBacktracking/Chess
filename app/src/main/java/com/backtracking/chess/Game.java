@@ -408,7 +408,7 @@ class Game {
         capturedPieces.add(capturedPiece);
         pieces.remove(capturedPiece);
         gameActivity.updatePads(capturedPiece);
-        if (activePiece instanceof King || !"transformer".equals(mode))
+        if (activePiece instanceof King || !"transformer".equals(mode)) return;
 
         if(activePiece instanceof Pawn){ // check promotion possibility
             if(activePiece.color == Const.WHITE
