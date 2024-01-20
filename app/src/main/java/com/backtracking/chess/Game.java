@@ -21,6 +21,7 @@ import java.util.ListIterator;
 class Game {
     String mode;
     String category;
+    int colorOfActivePlayer;
     byte state;
     private byte previousState;
     List<Position> movePointers;
@@ -40,8 +41,9 @@ class Game {
         gameActivity = gA;
     }
 
-    void start(String m_mode){
+    void start(String m_mode, String m_category){
         this.mode = m_mode;
+        this.category = m_category;
         state = Const.STATE_SELECT;
         previousState = state;
         pieces = new ArrayList<>();
@@ -51,6 +53,7 @@ class Game {
         enPassantInPast = new ArrayList<>();
 
         activeColor = Const.WHITE;
+        colorOfActivePlayer = Const.WHITE;
 
         for (byte color = Const.WHITE; color <= Const.BLACK; color++){
             for(int i = 0; i < 8; i++) pieces.add(new Pawn(context, color));
@@ -75,8 +78,8 @@ class Game {
         gameActivity.endOfTheGame(w);
     }
 
-    private void changeTurn(){
-        for(Piece i : pieces) if(i.enPassant){
+    private void changeTurn(boolean isAIMode) {
+        for (Piece i : pieces) if(i.enPassant){
             if(enPassantInPast.contains(i)){
                 i.enPassant = false;
                 enPassantInPast.remove(i);
@@ -96,6 +99,7 @@ class Game {
             king = whiteKing;
         }
 
+        if (isAIMode) return;
         gameActivity.changeTurn(activeColor);
 
         if(!mayCheckBeAvoided(king)) {
@@ -108,12 +112,33 @@ class Game {
         }
     }
 
+    private void changeTurnReverse(List<Piece> tmpPieces, List<Piece> tmpEnPassantInPast) {
+        pieces = new ArrayList<>();
+        enPassantInPast = new ArrayList<>();
+
+        for (Piece piece : tmpPieces) {
+            pieces.add(piece);
+        }
+        for (Piece piece : tmpEnPassantInPast) {
+            enPassantInPast.add(piece);
+        }
+
+        // change to BLACK
+        if (activeColor == Const.WHITE) {
+            activeColor = Const.BLACK;
+        }
+        // change to WHITE
+        else {
+            activeColor = Const.WHITE;
+        }
+    }
+
     void processTouch(MotionEvent event, Position touchPosition){
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 switch (state) {
                     case Const.STATE_SELECT:
-                        for (Piece i : pieces) if(i.color == activeColor)
+                        for (Piece i : pieces) if(i.color == activeColor && activeColor == colorOfActivePlayer)
                             if (Position.areEqual(i.position, touchPosition)) {
                                 activePiece = i;
                                 movePointers = getMovePointers(activePiece);
@@ -147,7 +172,8 @@ class Game {
                                             && activePiece.position.y == 7) promotion(activePiece);
                                     else if(activePiece.position.y == 0) promotion(activePiece);
                                 }
-                                changeTurn();
+                                changeTurn(false);
+                                if ("AI".equals(category)) findBestMoveForAI(3);
                                 break;
                             }
                         for (Position i : attackPointers)
@@ -167,7 +193,8 @@ class Game {
                                 if(pieceOnSquare(touchPosition)) capture(getPieceOn(touchPosition));
 
                                 activePiece.moveTo(touchPosition);
-                                changeTurn();
+                                changeTurn(false);
+                                if ("AI".equals(category)) findBestMoveForAI(3);
                                 break;
                             }
 
@@ -473,6 +500,244 @@ class Game {
         pieces.remove(activePiece);
         gameActivity.redrawBoard();
     }
+
+    public void findBestMoveForAI(int depth) {
+        Move bestMove = null;
+        int bestValue = Integer.MIN_VALUE;
+        int moveValue = Integer.MIN_VALUE;
+
+        List<Piece> tmpPieces = new ArrayList<>();
+        List<Piece> tmpEnPassantInPast = new ArrayList<>();
+
+        for (Piece piece : pieces) {
+            tmpPieces.add(piece);
+        }
+        for (Piece piece : enPassantInPast) {
+            tmpEnPassantInPast.add(piece);
+        }
+
+        for (Move move : getAllPossibleMoves()) {
+            makeMove(move, true);
+            moveValue = alphaBeta(depth, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
+            changeTurnReverse(tmpPieces, tmpEnPassantInPast);
+
+            if (moveValue > bestValue) {
+                bestValue = moveValue;
+                bestMove = move;
+            }
+        }
+
+        movePointers = new ArrayList<>();
+        attackPointers = new ArrayList<>();
+
+        makeMove(bestMove, false);
+    }
+
+    private int alphaBeta(int depth, int alpha, int beta, boolean maximizingPlayer) {
+        for (Piece piece : pieces) {
+            if (piece instanceof King) {
+                if ((piece.color == colorOfActivePlayer && maximizingPlayer) || (piece.color != colorOfActivePlayer && !maximizingPlayer)) {
+                    if (!mayCheckBeAvoided(piece)) return evaluateBoard(maximizingPlayer) - 900;
+                }
+            }
+        }
+        if (depth == 0 ) {
+            return evaluateBoard(maximizingPlayer);
+        }
+
+        List<Piece> tmpPieces = new ArrayList<>();
+        List<Piece> tmpEnPassantInPast = new ArrayList<>();
+
+        for (Piece piece : pieces) {
+            tmpPieces.add(piece);
+        }
+        for (Piece piece : enPassantInPast) {
+            tmpEnPassantInPast.add(piece);
+        }
+
+        if (maximizingPlayer) {
+            int maxEval = Integer.MIN_VALUE;
+            for (Move move : getAllPossibleMoves()) {
+                makeMove(move, true);
+                int eval = alphaBeta(depth - 1, alpha, beta, false);
+                changeTurnReverse(tmpPieces, tmpEnPassantInPast);
+                maxEval = Math.max(maxEval, eval);
+                alpha = Math.max(alpha, eval);
+                if (beta <= alpha) {
+                    break; // Beta cut-off
+                }
+            }
+            return maxEval;
+        } else {
+            int minEval = Integer.MAX_VALUE;
+            for (Move move : getAllPossibleMoves()) {
+                makeMove(move, true);
+                int eval = alphaBeta(depth - 1, alpha, beta, true);
+                changeTurnReverse(tmpPieces, tmpEnPassantInPast);
+                minEval = Math.min(minEval, eval);
+                beta = Math.min(beta, eval);
+                if (beta <= alpha) {
+                    break; // Alpha cut-off
+                }
+            }
+            return minEval;
+        }
+    }
+
+
+    public int evaluateBoard(boolean maximizingPlayer) {
+        int score = 0;
+
+        for (Piece piece : pieces) {
+            if (piece == null) continue;
+            if (maximizingPlayer && piece.color != colorOfActivePlayer) continue;
+            if (!maximizingPlayer && piece.color == colorOfActivePlayer) continue;
+
+            score += getPieceValue(piece);
+
+        }
+
+        return score;
+    }
+
+    private int getPieceValue(Piece piece) {
+        if (piece instanceof Pawn) return 10;
+        else if (piece instanceof Knight) return 30;
+        else if (piece instanceof Bishop) return 30;
+        else if (piece instanceof Rook) return 30;
+        else if (piece instanceof Queen) return 90;
+        else if (piece instanceof King) return 900;
+
+        return 0;
+    }
+
+    private void makeMove(Move bestMove, boolean isAITurn) {
+        if (bestMove != null) {
+            if (!bestMove.isAttack()) {
+                if (bestMove.getPiece() instanceof King)
+                    if (Math.abs(bestMove.getPiece().position.x - bestMove.getNewPosition().x) > 1) {
+                        getCloserRook(bestMove.getNewPosition().x, bestMove.getPiece().color).moveTo(
+                                new Position((bestMove.getPiece().position.x + bestMove.getNewPosition().x) / 2, bestMove.getNewPosition().y));
+                    }
+                bestMove.getPiece().moveTo(bestMove.getNewPosition());
+                if (bestMove.getPiece() instanceof Pawn) { // check promotion possibility
+                    if (bestMove.getPiece().position.y == 7 || bestMove.getPiece().position.y == 0) {
+                        Piece promotionPiece = new Queen(context, bestMove.getPiece().color, bestMove.getPiece().position);
+                        pieces.add(promotionPiece);
+                        pieces.remove(bestMove.getPiece());
+                    }
+                }
+                changeTurn(isAITurn);
+            }
+            else {
+                if (bestMove.getPiece() instanceof Pawn) { // check promotion possibility
+                    if ((bestMove.getPiece().color == Const.WHITE && bestMove.getPiece().position.y == 6) ||
+                            (bestMove.getPiece().color == Const.BLACK && bestMove.getPiece().position.y == 1)) {
+                        Piece promotionPiece = new Queen(context, bestMove.getPiece().color, bestMove.getPiece().position);
+                        pieces.add(promotionPiece);
+                        pieces.remove(bestMove.getPiece());
+                    }
+                }
+
+                if (bestMove.getPiece() instanceof Pawn) if (!pieceOnSquare(bestMove.getNewPosition())) {
+                    if (bestMove.getPiece().color == Const.WHITE)
+                        pieces.remove(getPieceOn(new Position(bestMove.getNewPosition().x, bestMove.getNewPosition().y - 1)));
+                    else
+                        pieces.remove(getPieceOn(new Position(bestMove.getNewPosition().x, bestMove.getNewPosition().y + 1)));
+                }
+
+                if (!(bestMove.getPiece() instanceof King) && "transformer".equals(mode)) {
+                    if (!(bestMove.getPiece() instanceof Pawn) || (!(bestMove.getPiece().color == Const.WHITE && bestMove.getPiece().position.y == 6)
+                            && !(bestMove.getPiece().color == Const.BLACK && bestMove.getPiece().position.y == 1))) { // check promotion possibility
+
+                        if (pieceOnSquare(bestMove.getNewPosition())) {
+                            Class<?> capturedPieceType = getPieceOn(bestMove.getNewPosition()).getClass();
+                            Piece newPiece = createNewPiece(capturedPieceType, bestMove.getPiece().color, activePiece.position);
+                            pieces.add(newPiece);
+                            pieces.remove(bestMove.getPiece());
+                        }
+                    }
+                }
+                if (pieceOnSquare(bestMove.getNewPosition())) pieces.remove(getPieceOn(bestMove.getNewPosition()));
+
+                bestMove.getPiece().moveTo(bestMove.getNewPosition());
+                changeTurn(isAITurn);
+            }
+        }
+    }
+
+    private List<Move> getAllPossibleMoves() {
+        List<Move> allMoves = new ArrayList<>();
+
+        for (Piece piece : pieces) {
+            if (piece.color == colorOfActivePlayer) continue;
+            movePointers = getMovePointers(piece);
+            attackPointers = getAttackPointers(piece);
+            if (piece instanceof King) {
+                movePointers = removeAttacked(movePointers, piece);
+                attackPointers = removeAttacked(attackPointers, piece);
+            }
+            else {
+                movePointers = makeKingSafe(piece, movePointers);
+                attackPointers = makeKingSafe(piece, attackPointers);
+            }
+
+
+            for (Position pos : movePointers) {
+                boolean isCastle = false;
+                boolean isPromotion = false;
+
+                if (piece instanceof King)
+                    if (Math.abs(piece.position.x - pos.x) > 1) {
+                        isCastle = true;
+                    }
+                if (piece instanceof Pawn) { // check promotion possibility
+                    if (piece.position.y == 7 || piece.position.y == 0) {
+                        isPromotion = true;
+                    }
+                }
+                allMoves.add(new Move(piece, pos, isCastle, isPromotion, false));
+
+            }
+            for (Position i : attackPointers) {
+                boolean isPromotion = false;
+
+                if (piece instanceof Pawn) { // check promotion possibility
+                    if ((piece.color == Const.WHITE && piece.position.y == 6) ||
+                            (piece.color == Const.BLACK && piece.position.y == 1)) {
+                        isPromotion = true;
+                    }
+                }
+
+//                if (piece instanceof Pawn) if (!pieceOnSquare(i)) {
+//                    if (piece.color == Const.WHITE)
+//                        pieces.remove(getPieceOn(new Position(i.x, i.y - 1)));
+//                    else
+//                        pieces.remove(getPieceOn(new Position(i.x, i.y + 1)));
+//                }
+
+                if (!(piece instanceof King) && "transformer".equals(mode)) {
+                    if (!(piece instanceof Pawn) || (!(piece.color == Const.WHITE && piece.position.y == 6)
+                            && !(piece.color == Const.BLACK && piece.position.y == 1))) { // check promotion possibility
+
+//                        if (pieceOnSquare(i)) {
+//                            Class<?> capturedPieceType = getPieceOn(i).getClass();
+//                            Piece newPiece = createNewPiece(capturedPieceType, piece.color, piece.position);
+//                            pieces.add(newPiece);
+//                            pieces.remove(piece);
+//                        }
+                    }
+                }
+
+                allMoves.add(new Move(piece, i, false, isPromotion, true));
+
+            }
+
+        }
+        return allMoves;
+    }
+
+
 
     void pause(){
         previousState = state;

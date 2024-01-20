@@ -38,6 +38,7 @@ import java.util.Objects;
 public class GameActivity extends AppCompatActivity implements GameManagement {
     String mode;
     String category;
+    int colorOfActivePlayer;
 
     private Game game;
 
@@ -75,6 +76,7 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
 
         mode = getIntent().getStringExtra("mode");
         category = getIntent().getStringExtra("category");
+        colorOfActivePlayer = Const.WHITE;
         if ("hidden".equals(mode)) displayMode = Const.MODERN_MODE;
         else displayMode = Const.CLASSIC_MODE;
 
@@ -220,7 +222,7 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
     public void resetGame(){
         Piece.resetAll();
         game = new Game(this, this);
-        game.start(mode);
+        game.start(mode, category);
         drawState = Const.NO_DRAW;
         pads.get(Const.WHITE).reset();
         pads.get(Const.BLACK).reset();
