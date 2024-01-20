@@ -13,10 +13,13 @@ public class ChooseModeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_mode);
 
+        String category = getIntent().getStringExtra("category");
+
         Button startClassicButton = findViewById(R.id.classic_mode_button);
         startClassicButton.setOnClickListener(view -> {
             Intent startGameActivity = new Intent(getApplicationContext(), GameActivity.class);
             startGameActivity.putExtra("mode", "classic");
+            startGameActivity.putExtra("category", category);
             startActivity(startGameActivity);
         });
 
@@ -24,6 +27,7 @@ public class ChooseModeActivity extends AppCompatActivity {
         startTransformerButton.setOnClickListener(view -> {
             Intent startGameActivity = new Intent(getApplicationContext(), GameActivity.class);
             startGameActivity.putExtra("mode", "transformer");
+            startGameActivity.putExtra("category", category);
             startActivity(startGameActivity);
         });
 
@@ -31,6 +35,7 @@ public class ChooseModeActivity extends AppCompatActivity {
         startHiddenPieceButton.setOnClickListener(view -> {
             Intent startGameActivity = new Intent(getApplicationContext(), GameActivity.class);
             startGameActivity.putExtra("mode", "hidden");
+            startGameActivity.putExtra("category", category);
             startActivity(startGameActivity);
         });
     }

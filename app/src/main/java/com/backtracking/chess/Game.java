@@ -20,6 +20,7 @@ import java.util.ListIterator;
 
 class Game {
     String mode;
+    String category;
     byte state;
     private byte previousState;
     List<Position> movePointers;
@@ -408,6 +409,7 @@ class Game {
         capturedPieces.add(capturedPiece);
         pieces.remove(capturedPiece);
         gameActivity.updatePads(capturedPiece);
+        gameActivity.redrawBoard();
         if (activePiece instanceof King || !"transformer".equals(mode)) return;
 
         if(activePiece instanceof Pawn){ // check promotion possibility
@@ -421,7 +423,7 @@ class Game {
         pieces.add(newPiece);
         pieces.remove(activePiece);
         activePiece = newPiece;
-
+        gameActivity.redrawBoard();
     }
 
     private Piece createNewPiece(Class<?> pieceType, byte color, Position position) {

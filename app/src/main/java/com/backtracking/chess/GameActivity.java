@@ -37,7 +37,7 @@ import java.util.Objects;
 
 public class GameActivity extends AppCompatActivity implements GameManagement {
     String mode;
-    boolean category;
+    String category;
 
     private Game game;
 
@@ -74,6 +74,7 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
         vibrations = preferences.getBoolean(getResources().getString(R.string.vibrations_on_key), false);
 
         mode = getIntent().getStringExtra("mode");
+        category = getIntent().getStringExtra("category");
         if ("hidden".equals(mode)) displayMode = Const.MODERN_MODE;
         else displayMode = Const.CLASSIC_MODE;
 
