@@ -158,18 +158,37 @@ class Game {
                         state = Const.STATE_SELECT; // here because of possible change to STATE_END
                         if (Position.areEqual(touchPosition, activePiece.position)) break;
                         if(yourTurn != null) {
-                            try{
-                            JSONObject socketMessage = gameActivity.socket.getMessage();
-                            socketMessage.put("fromX", activePiece.position.x);
-                            socketMessage.put("fromY", activePiece.position.y);
-                            socketMessage.put("toX", touchPosition.x);
-                            socketMessage.put("toY", touchPosition.y);
-                            gameActivity.socket.sendMessage("move",socketMessage);
-                            socketMessage.put("yourTurn", false);
-                            gameActivity.socket.setMessage(socketMessage);
-                            }catch(Exception e) {
-                                System.out.println("Error in game.java " + e);
+
+                            // check touch event in movePointer or attackPointer
+
+                            boolean isValid = false;
+
+                            for (Position i : movePointers)
+                                if (Position.areEqual(i, touchPosition)) {
+                                    isValid = true;
+                                    break;
+                                }
+                            for (Position i : attackPointers)
+                                if (Position.areEqual(i, touchPosition)) {
+                                    isValid = true;
+                                    break;
+                                }
+
+                            if(isValid) {
+                                try{
+                                    JSONObject socketMessage = gameActivity.socket.getMessage();
+                                    socketMessage.put("fromX", activePiece.position.x);
+                                    socketMessage.put("fromY", activePiece.position.y);
+                                    socketMessage.put("toX", touchPosition.x);
+                                    socketMessage.put("toY", touchPosition.y);
+                                    gameActivity.socket.sendMessage("move",socketMessage);
+                                    socketMessage.put("yourTurn", false);
+                                    gameActivity.socket.setMessage(socketMessage);
+                                }catch(Exception e) {
+                                    System.out.println("Error in game.java " + e);
+                                }
                             }
+
                         }
                         for (Position i : movePointers)
                             if (Position.areEqual(i, touchPosition)) {
