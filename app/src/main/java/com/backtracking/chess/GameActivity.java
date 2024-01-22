@@ -30,19 +30,23 @@ import android.widget.Toast;
 import com.backtracking.chess.Pieces.Piece;
 import com.backtracking.chess.Views.Board;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Date;
-import java.util.Objects;
+
+import io.socket.emitter.Emitter;
 
 public class GameActivity extends AppCompatActivity implements GameManagement {
     String mode;
     String category;
-
+    SocketImpl socket;
+    String typePlayer;
     private Game game;
 
     private byte drawState;
-
     private Board board;
     private FrameLayout fragmentFrame;
     private SparseArray<PlayerPadFragment> pads;
@@ -56,6 +60,7 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // setting up the activity
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         menuButton = findViewById(R.id.game_menu_button);
@@ -75,6 +80,46 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
 
         mode = getIntent().getStringExtra("mode");
         category = getIntent().getStringExtra("category");
+
+
+        if("online".equals(category)) {
+            socket = SocketImpl.getInstance();
+            if(!socket.isConnected()) {
+                socket.connect();
+            }
+            socket.findMatch();
+            socket.on("found_match", new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    JSONObject content = (JSONObject) args[0];
+                    System.out.println("found match: " + content);
+                    socket.setMessage(content);
+                }
+            });
+
+            socket.on("move", new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Object content = args[0];
+                    if (content instanceof JSONObject) {
+                        JSONObject data = (JSONObject) content;
+                        try {
+                            game.processMoveCompetitor(
+                                    new Position(data.getInt("fromX"), data.getInt("fromY")),
+                                    new Position(data.getInt("toX"), data.getInt("toY"))
+                            );
+                            redrawBoard();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+
+
+        }
+
+
         if ("hidden".equals(mode)) displayMode = Const.MODERN_MODE;
         else displayMode = Const.CLASSIC_MODE;
 
@@ -192,7 +237,11 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
 
         board.setOnTouchListener((view, event) -> {
             Position p = board.getSquare(new Position((int) event.getX(), (int) event.getY()));
-            game.processTouch(event, p);
+            try {
+                game.processTouch(event, p, socket.getMessage().getBoolean("yourTurn"));
+            } catch (JSONException e) {
+                game.processTouch(event, p, null);
+            }
 
             redrawBoard();
 

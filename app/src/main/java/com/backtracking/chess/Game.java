@@ -13,6 +13,8 @@ import com.backtracking.chess.Pieces.Piece;
 import com.backtracking.chess.Pieces.Queen;
 import com.backtracking.chess.Pieces.Rook;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -108,11 +110,31 @@ class Game {
         }
     }
 
-    void processTouch(MotionEvent event, Position touchPosition){
+    void processMoveCompetitor(Position oldP, Position newP) {
+        for (Piece chosenPiece : pieces)
+            if (Position.areEqual(chosenPiece.position, oldP)){
+                chosenPiece.moveTo(newP);
+            }
+        changeTurn();
+        gameActivity.redrawBoard();
+
+        JSONObject socketMessage = gameActivity.socket.getMessage();
+        try {
+            socketMessage.put("yourTurn", true);
+            gameActivity.socket.setMessage(socketMessage);
+        }catch (Exception e) {
+            System.out.println("Error in game.java " + e);
+        }
+
+    }
+
+    void processTouch(MotionEvent event, Position touchPosition, Boolean yourTurn){
+        System.out.println("yourTurn " + yourTurn);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 switch (state) {
                     case Const.STATE_SELECT:
+                        if(yourTurn != null && !yourTurn) break;
                         for (Piece i : pieces) if(i.color == activeColor)
                             if (Position.areEqual(i.position, touchPosition)) {
                                 activePiece = i;
@@ -132,8 +154,23 @@ class Game {
                         break;
 
                     case Const.STATE_MOVE_ATTACK:
+                        if(yourTurn != null && !yourTurn) break;
                         state = Const.STATE_SELECT; // here because of possible change to STATE_END
                         if (Position.areEqual(touchPosition, activePiece.position)) break;
+                        if(yourTurn != null) {
+                            try{
+                            JSONObject socketMessage = gameActivity.socket.getMessage();
+                            socketMessage.put("fromX", activePiece.position.x);
+                            socketMessage.put("fromY", activePiece.position.y);
+                            socketMessage.put("toX", touchPosition.x);
+                            socketMessage.put("toY", touchPosition.y);
+                            gameActivity.socket.sendMessage("move",socketMessage);
+                            socketMessage.put("yourTurn", false);
+                            gameActivity.socket.setMessage(socketMessage);
+                            }catch(Exception e) {
+                                System.out.println("Error in game.java " + e);
+                            }
+                        }
                         for (Position i : movePointers)
                             if (Position.areEqual(i, touchPosition)) {
                                 if(activePiece instanceof King)
