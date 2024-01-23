@@ -8,7 +8,7 @@ import io.socket.client.IO;
 import io.socket.engineio.client.transports.WebSocket;
 
 public class SocketImpl implements Socket {
-    final String URL = "http://192.168.1.2:3000";
+    final String URL = "https://android-socket-server-soeq.vercel.app";
     private io.socket.client.Socket socket;
     private JSONObject message;
     private String currentPlayer = null;
@@ -24,7 +24,6 @@ public class SocketImpl implements Socket {
     private io.socket.client.Socket newSocket() {
         IO.Options options = IO.Options.builder()
                 .setForceNew(true)
-                .setPort(3000)
                 .setTransports(new String[]{WebSocket.NAME})
                 .build();
 

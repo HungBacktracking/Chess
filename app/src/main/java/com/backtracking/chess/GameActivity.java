@@ -238,13 +238,16 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
         board.setOnTouchListener((view, event) -> {
             Position p = board.getSquare(new Position((int) event.getX(), (int) event.getY()));
             try {
-                game.processTouch(event, p, socket.getMessage().getBoolean("yourTurn"));
-            } catch (JSONException e) {
+                JSONObject message = socket.getMessage();
+                if(message != null)
+                    game.processTouch(event, p, socket.getMessage().getBoolean("yourTurn"));
+                else
+                    game.processTouch(event, p, null);
+            } catch (Exception e) {
                 game.processTouch(event, p, null);
             }
 
             redrawBoard();
-
             return true;
         });
 
