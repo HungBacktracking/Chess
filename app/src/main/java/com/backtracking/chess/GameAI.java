@@ -8,8 +8,6 @@ import com.backtracking.chess.Pieces.Piece;
 import com.backtracking.chess.Pieces.Queen;
 import com.backtracking.chess.Pieces.Rook;
 
-import org.apache.commons.lang3.SerializationUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -36,7 +34,10 @@ public class GameAI {
     }
 
     private static int alphaBeta(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
-        for (Piece piece : game.pieces) {
+        List<Piece> clonePieces = new ArrayList<>();
+        for(Piece piece : game.pieces)
+            clonePieces.add(piece.clonePiece());
+        for (Piece piece : clonePieces) {
             if (piece instanceof King) {
                 if ((piece.color == Const.BLACK && maximizingPlayer) || (piece.color != Const.BLACK && !maximizingPlayer)) {
                     if (!mayCheckBeAvoided(game, piece)) return evaluateBoard(game, maximizingPlayer) - 900;
@@ -181,11 +182,24 @@ public class GameAI {
 
 
     public static List<Move> getAllPossibleMoves(Game game) {
+        Piece p = null;
+        try {
+
         List<Move> allMoves = new ArrayList<>();
         List<Position> movePointers = new ArrayList<>();
         List<Position> attackPointers = new ArrayList<>();
 
-        for (Piece piece : game.pieces) {
+        List<Piece> clonePieces = new ArrayList<>();
+        for(Piece piece : game.pieces)
+            clonePieces.add(piece.clonePiece());
+
+        for (Piece piece : clonePieces) {
+            p = piece.clonePiece();
+            int x = piece.position.x;
+            int y = piece.position.y;
+            if (x == 0 && y == 6) {
+                int a = 1;
+            }
             if (piece.color != game.activeColor) continue;
             movePointers = getMovePointers(game, piece);
             attackPointers = getAttackPointers(game, piece);
@@ -250,7 +264,13 @@ public class GameAI {
             }
 
         }
+
         return allMoves;
+        }catch (Exception e) {
+            System.out.println(p);
+            e.printStackTrace();
+            return null;
+        }
     }
 
 

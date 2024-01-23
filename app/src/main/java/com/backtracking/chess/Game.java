@@ -13,8 +13,6 @@ import com.backtracking.chess.Pieces.Piece;
 import com.backtracking.chess.Pieces.Queen;
 import com.backtracking.chess.Pieces.Rook;
 
-import org.apache.commons.lang3.SerializationUtils;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
