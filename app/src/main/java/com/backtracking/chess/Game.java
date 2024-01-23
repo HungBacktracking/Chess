@@ -443,6 +443,8 @@ class Game {
     }
 
     private void capture(Piece capturedPiece){
+        gameActivity.captureAnimation(activePiece, capturedPiece, "transformer".equals(mode));
+
         capturedPieces.add(capturedPiece);
         pieces.remove(capturedPiece);
         gameActivity.updatePads(capturedPiece);
