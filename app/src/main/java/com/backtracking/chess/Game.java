@@ -33,8 +33,8 @@ class Game implements Serializable {
     Piece whiteKing, blackKing;
     List<Piece> enPassantInPast;
 
-    private final Context context;
-    private final GameActivity gameActivity;
+    final Context context;
+    final GameActivity gameActivity;
 
     Game(Context c, GameActivity gA){
         context = c;
@@ -126,10 +126,10 @@ class Game implements Serializable {
         gameActivity.endOfTheGame(w);
     }
 
-    private void changeTurn(){
+    private void changeTurn() {
         gameActivity.redrawBoard();
-        for(Piece i : pieces) if(i.enPassant){
-            if(enPassantInPast.contains(i)){
+        for(Piece i : pieces) if(i.enPassant) {
+            if(enPassantInPast.contains(i)) {
                 i.enPassant = false;
                 enPassantInPast.remove(i);
             }
@@ -138,23 +138,24 @@ class Game implements Serializable {
 
         Piece king;
         // change to BLACK
-        if(activeColor == Const.WHITE){
+        if (activeColor == Const.WHITE) {
             activeColor = Const.BLACK;
             king = blackKing;
         }
         // change to WHITE
-        else{
+        else {
             activeColor = Const.WHITE;
             king = whiteKing;
         }
 
+        gameActivity.redrawBoard();
         gameActivity.changeTurn(activeColor);
 
         if(!mayCheckBeAvoided(king)) {
             if (activeColor == Const.WHITE) end(Const.BLACK);
             else end(Const.WHITE);
         }
-        else if(isSquareAttacked(king.position, king)){
+        else if(isSquareAttacked(king.position, king)) {
             gameActivity.vibrate(200);
             GameManagement.makeToast(R.string.toast_check, GameManagement.switchColor(activeColor), gameActivity);
         }
@@ -162,7 +163,7 @@ class Game implements Serializable {
         if (activeColor == Const.WHITE) return;
         Game currentGame = new Game(this);
         Move bestMove = GameAI.findBestMove(currentGame);
-        bestMove.getPiece().moveTo(bestMove.getNewPosition());
+//        getPieceOn(bestMove.getPiece().position).moveTo(bestMove.getNewPosition());
         GameAI.makeMove(this, bestMove, true);
         changeTurn();
         gameActivity.redrawBoard();
@@ -247,7 +248,7 @@ class Game implements Serializable {
         }
     }
 
-    private boolean pieceOnSquare(Position square){
+    boolean pieceOnSquare(Position square){
         for(Piece p : pieces) if(p.position != null) // may be null because of getPieceOn()
 
             if (Position.areEqual(p.position, square)) return true;

@@ -22,7 +22,7 @@ public class GameAI {
         for (Move move : allMoves) {
             Game tmpGame = new Game(currentGame);
             makeMove(tmpGame, move, false);
-            moveValue = alphaBeta(tmpGame, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
+            moveValue = alphaBeta(tmpGame, 2, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
 
             if (moveValue > bestValue) {
                 bestValue = moveValue;
@@ -93,12 +93,12 @@ public class GameAI {
     }
 
     private static int getPieceValue(Piece piece) {
-        if (piece instanceof Pawn) return 10;
-        else if (piece instanceof Knight) return 30;
-        else if (piece instanceof Bishop) return 30;
-        else if (piece instanceof Rook) return 30;
-        else if (piece instanceof Queen) return 90;
-        else if (piece instanceof King) return 900;
+        if (piece instanceof Pawn) return 100;
+        else if (piece instanceof Knight) return 325;
+        else if (piece instanceof Bishop) return 340;
+        else if (piece instanceof Rook) return 500;
+        else if (piece instanceof Queen) return 900;
+        else if (piece instanceof King) return 10000;
 
         return 0;
     }
@@ -114,7 +114,7 @@ public class GameAI {
                 game.getPieceOn(bestMove.getPiece().position).moveTo(bestMove.getNewPosition());
                 if (bestMove.getPiece() instanceof Pawn) { // check promotion possibility
                     if (bestMove.getPiece().position.y == 7 || bestMove.getPiece().position.y == 0) {
-                        Piece promotionPiece = new Queen(bestMove.getPiece().color, bestMove.getPiece().position);
+                        Piece promotionPiece = new Queen(game.context, bestMove.getPiece().color, bestMove.getPiece().position);
                         game.pieces.add(promotionPiece);
                         game.pieces.remove(bestMove.getPiece());
                     }
@@ -125,32 +125,36 @@ public class GameAI {
                 if (bestMove.getPiece() instanceof Pawn) { // check promotion possibility
                     if ((bestMove.getPiece().color == Const.WHITE && bestMove.getPiece().position.y == 6) ||
                             (bestMove.getPiece().color == Const.BLACK && bestMove.getPiece().position.y == 1)) {
-                        Piece promotionPiece = new Queen(bestMove.getPiece().color, bestMove.getPiece().position);
+                        Piece promotionPiece = new Queen(game.context, bestMove.getPiece().color, bestMove.getPiece().position);
                         game.pieces.add(promotionPiece);
-                        game.pieces.remove(bestMove.getPiece());
+                        game.pieces.remove(game.getPieceOn(bestMove.getPiece().position));
                     }
                 }
 
                 if (bestMove.getPiece() instanceof Pawn) if (!pieceOnSquare(game, bestMove.getNewPosition())) {
-                    if (bestMove.getPiece().color == Const.WHITE)
-                        game.pieces.remove(getPieceOn(game, new Position(bestMove.getNewPosition().x, bestMove.getNewPosition().y - 1)));
-                    else
-                        game.pieces.remove(getPieceOn(game, new Position(bestMove.getNewPosition().x, bestMove.getNewPosition().y + 1)));
+                    if (bestMove.getPiece().color == Const.WHITE) {
+                        game.pieces.remove(game.getPieceOn(new Position(bestMove.getNewPosition().x, bestMove.getNewPosition().y - 1)));
+                    }
+                    else {
+                        game.pieces.remove(game.getPieceOn(new Position(bestMove.getNewPosition().x, bestMove.getNewPosition().y + 1)));
+                    }
                 }
 
                 if (!(bestMove.getPiece() instanceof King) && "transformer".equals(game.mode)) {
                     if (!(bestMove.getPiece() instanceof Pawn) || (!(bestMove.getPiece().color == Const.WHITE && bestMove.getPiece().position.y == 6)
                             && !(bestMove.getPiece().color == Const.BLACK && bestMove.getPiece().position.y == 1))) { // check promotion possibility
 
-                        if (pieceOnSquare(game, bestMove.getNewPosition())) {
-                            Class<?> capturedPieceType = getPieceOn(game, bestMove.getNewPosition()).getClass();
-                            Piece newPiece = createNewPiece(capturedPieceType, bestMove.getPiece().color, game.activePiece.position);
+                        if (game.pieceOnSquare(bestMove.getNewPosition())) {
+                            Class<?> capturedPieceType = game.getPieceOn(bestMove.getNewPosition()).getClass();
+                            Piece newPiece = createNewPiece(game, capturedPieceType, bestMove.getPiece().color, game.activePiece.position);
                             game.pieces.add(newPiece);
-                            game.pieces.remove(bestMove.getPiece());
+                            game.pieces.remove(game.getPieceOn(bestMove.getPiece().position));
                         }
                     }
                 }
-                if (pieceOnSquare(game, bestMove.getNewPosition())) game.pieces.remove(getPieceOn(game, bestMove.getNewPosition()));
+                if (game.pieceOnSquare(bestMove.getNewPosition())) {
+                    game.pieces.remove(getPieceOn(game, bestMove.getNewPosition()));
+                }
 
                 game.getPieceOn(bestMove.getPiece().position).moveTo(bestMove.getNewPosition());
                 if (!isOfficialMove) changeTurn(game);
@@ -159,6 +163,7 @@ public class GameAI {
     }
 
     private static void changeTurn(Game game) {
+        game.gameActivity.redrawBoard();
         for (Piece i : game.pieces) if (i.enPassant) {
             if (game.enPassantInPast.contains(i)) {
                 i.enPassant = false;
@@ -178,6 +183,7 @@ public class GameAI {
             game.activeColor = Const.WHITE;
             king = game.whiteKing;
         }
+        game.gameActivity.changeTurn(game.activeColor);
     }
 
 
@@ -507,24 +513,24 @@ public class GameAI {
         }
 
         Class<?> capturedPieceType = capturedPiece.getClass();
-        Piece newPiece = createNewPiece(capturedPieceType, game.activePiece.color, game.activePiece.position);
+        Piece newPiece = createNewPiece(game, capturedPieceType, game.activePiece.color, game.activePiece.position);
         game.pieces.add(newPiece);
         game.pieces.remove(game.activePiece);
         game.activePiece = newPiece;
     }
 
-    private static Piece createNewPiece(Class<?> pieceType, byte color, Position position) {
+    private static Piece createNewPiece(Game game, Class<?> pieceType, byte color, Position position) {
         if (pieceType == Pawn.class) {
-            return new Pawn(color, position);
+            return new Pawn(game.context, color, position);
         }
         else if (pieceType == Rook.class) {
-            return new Rook(color, position);
+            return new Rook(game.context, color, position);
         } else if (pieceType == Knight.class) {
-            return new Knight(color, position);
+            return new Knight(game.context, color, position);
         } else if (pieceType == Bishop.class) {
-            return new Bishop(color, position);
+            return new Bishop(game.context, color, position);
         } else if (pieceType == Queen.class) {
-            return new Queen(color, position);
+            return new Queen(game.context, color, position);
         } else {
             throw new IllegalArgumentException("Unknown piece type: " + pieceType);
         }
