@@ -31,7 +31,7 @@ public class ChooseModeActivity extends AppCompatActivity {
             startActivity(startGameActivity);
         });
 
-        Button startHiddenPieceButton = findViewById(R.id.special_display_button);
+        Button startHiddenPieceButton = findViewById(R.id.hidden_piece_mode_button);
         startHiddenPieceButton.setOnClickListener(view -> {
             Intent startGameActivity = new Intent(getApplicationContext(), GameActivity.class);
             startGameActivity.putExtra("mode", "hidden");
