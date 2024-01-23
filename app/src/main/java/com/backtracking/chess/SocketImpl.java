@@ -8,7 +8,7 @@ import io.socket.client.IO;
 import io.socket.engineio.client.transports.WebSocket;
 
 public class SocketImpl implements Socket {
-    final String URL = "http://192.168.1.2:3000";
+    final String URL = "http://103.82.133.17:3000";
     private io.socket.client.Socket socket;
     private JSONObject message;
     private SocketImpl() {
