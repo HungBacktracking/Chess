@@ -19,10 +19,17 @@ public class GameAI {
         int moveValue = Integer.MIN_VALUE;
 
         List<Move> allMoves = getAllPossibleMoves(currentGame);
+
+        int depth = 1;
+        if (allMoves != null && allMoves.size() < 20) depth = 2;
+        else if (allMoves != null && allMoves.size() < 10) depth = 3;
+        else if (allMoves != null && allMoves.size() < 7) depth = 4;
+        else if (allMoves != null && allMoves.size() <= 3) depth = 5;
+
         for (Move move : allMoves) {
             Game tmpGame = new Game(currentGame);
             makeMove(tmpGame, move, false);
-            moveValue = alphaBeta(tmpGame, 2, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
+            moveValue = alphaBeta(tmpGame, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
 
             if (moveValue > bestValue) {
                 bestValue = moveValue;
@@ -40,7 +47,8 @@ public class GameAI {
         for (Piece piece : clonePieces) {
             if (piece instanceof King) {
                 if ((piece.color == Const.BLACK && maximizingPlayer) || (piece.color != Const.BLACK && !maximizingPlayer)) {
-                    if (!mayCheckBeAvoided(game, piece)) return evaluateBoard(game, maximizingPlayer) - 900;
+                    if (!mayCheckBeAvoided(game, piece)) return evaluateBoard(game, maximizingPlayer) - 10000;
+                    else if (isSquareAttacked(game, piece.position, piece)) return evaluateBoard(game, maximizingPlayer) - 100;
                 }
             }
         }
@@ -184,6 +192,15 @@ public class GameAI {
             king = game.whiteKing;
         }
         game.gameActivity.changeTurn(game.activeColor);
+
+        if(!mayCheckBeAvoided(game, king)) {
+            if (game.activeColor == Const.WHITE) game.end(Const.BLACK);
+            else game.end(Const.WHITE);
+        }
+        else if(isSquareAttacked(game, king.position, king)) {
+            game.gameActivity.vibrate(200);
+            GameManagement.makeToast(R.string.toast_check, GameManagement.switchColor(game.activeColor), game.gameActivity);
+        }
     }
 
 
