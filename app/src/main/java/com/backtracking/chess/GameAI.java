@@ -154,7 +154,7 @@ public class GameAI {
 
                         if (game.pieceOnSquare(bestMove.getNewPosition())) {
                             Class<?> capturedPieceType = game.getPieceOn(bestMove.getNewPosition()).getClass();
-                            Piece newPiece = createNewPiece(game, capturedPieceType, bestMove.getPiece().color, game.activePiece.position);
+                            Piece newPiece = createNewPiece(game, capturedPieceType, bestMove.getPiece().color, game.getPieceOn(bestMove.getNewPosition()).position);
                             game.pieces.add(newPiece);
                             game.pieces.remove(game.getPieceOn(bestMove.getPiece().position));
                         }
