@@ -58,6 +58,14 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true" />
 
+    <ImageView
+        android:id="@+id/animation"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true">
+    </ImageView>
+
     <Button
         android:id="@+id/game_menu_button"
         android:layout_width="wrap_content"
