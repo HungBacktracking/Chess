@@ -22,7 +22,7 @@ public class GameAI {
         for (Move move : allMoves) {
             Game tmpGame = new Game(currentGame);
             makeMove(tmpGame, move, false);
-            moveValue = alphaBeta(tmpGame, 3, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
+            moveValue = alphaBeta(tmpGame, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
 
             if (moveValue > bestValue) {
                 bestValue = moveValue;
@@ -111,7 +111,7 @@ public class GameAI {
                         getCloserRook(game, bestMove.getNewPosition().x, bestMove.getPiece().color).moveTo(
                                 new Position((bestMove.getPiece().position.x + bestMove.getNewPosition().x) / 2, bestMove.getNewPosition().y));
                     }
-                bestMove.getPiece().moveTo(bestMove.getNewPosition());
+                game.getPieceOn(bestMove.getPiece().position).moveTo(bestMove.getNewPosition());
                 if (bestMove.getPiece() instanceof Pawn) { // check promotion possibility
                     if (bestMove.getPiece().position.y == 7 || bestMove.getPiece().position.y == 0) {
                         Piece promotionPiece = new Queen(bestMove.getPiece().color, bestMove.getPiece().position);
@@ -152,7 +152,7 @@ public class GameAI {
                 }
                 if (pieceOnSquare(game, bestMove.getNewPosition())) game.pieces.remove(getPieceOn(game, bestMove.getNewPosition()));
 
-                bestMove.getPiece().moveTo(bestMove.getNewPosition());
+                game.getPieceOn(bestMove.getPiece().position).moveTo(bestMove.getNewPosition());
                 if (!isOfficialMove) changeTurn(game);
             }
         }

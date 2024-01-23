@@ -127,6 +127,7 @@ class Game implements Serializable {
     }
 
     private void changeTurn(){
+        gameActivity.redrawBoard();
         for(Piece i : pieces) if(i.enPassant){
             if(enPassantInPast.contains(i)){
                 i.enPassant = false;
@@ -161,8 +162,10 @@ class Game implements Serializable {
         if (activeColor == Const.WHITE) return;
         Game currentGame = new Game(this);
         Move bestMove = GameAI.findBestMove(currentGame);
+        bestMove.getPiece().moveTo(bestMove.getNewPosition());
         GameAI.makeMove(this, bestMove, true);
         changeTurn();
+        gameActivity.redrawBoard();
     }
 
     void processTouch(MotionEvent event, Position touchPosition){
@@ -251,7 +254,7 @@ class Game implements Serializable {
         return false;
     }
 
-    private Piece getPieceOn(Position p){
+    public Piece getPieceOn(Position p){
         for(Piece i : pieces) if(Position.areEqual(p, i.position)) return i;
         return new Pawn(context, (byte) 0); // protection for null pointer exception
     }
@@ -369,7 +372,7 @@ class Game implements Serializable {
         return castling;
     }
 
-    private Piece getCloserRook(int x, int color){
+    public Piece getCloserRook(int x, int color){
         Piece rook = null;
         int i;
         for(i = 0; i < pieces.size(); i++)
