@@ -13,35 +13,86 @@ import com.backtracking.chess.Pieces.Piece;
 import com.backtracking.chess.Pieces.Queen;
 import com.backtracking.chess.Pieces.Rook;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
 
-class Game {
+class Game implements Serializable {
     String mode;
     String category;
     byte state;
     private byte previousState;
     List<Position> movePointers;
     List<Position> attackPointers;
-    private Piece activePiece;
+    Piece activePiece;
     byte activeColor;
     List<Piece> pieces;
-    private List<Piece> capturedPieces; // added for future extensions
-    private Piece whiteKing, blackKing;
-    private List<Piece> enPassantInPast;
+    List<Piece> capturedPieces; // added for future extensions
+    Piece whiteKing, blackKing;
+    List<Piece> enPassantInPast;
 
-    private final Context context;
-    private final GameActivity gameActivity;
+    final Context context;
+    final GameActivity gameActivity;
 
     Game(Context c, GameActivity gA){
         context = c;
         gameActivity = gA;
     }
 
-    void start(String m_mode){
+    // Deep copy constructor
+    public Game(Game other) {
+        this.mode = other.mode;
+        this.category = other.category;
+        this.state = other.state;
+        this.previousState = other.previousState;
+
+        // Deep copy of List<Position> movePointers and attackPointers
+        this.movePointers = new ArrayList<>();
+        for (Position pos : other.movePointers) {
+            this.movePointers.add(new Position(pos)); // Assuming Position has a copy constructor
+        }
+        this.attackPointers = new ArrayList<>();
+        for (Position pos : other.attackPointers) {
+            this.attackPointers.add(new Position(pos)); // Assuming Position has a copy constructor
+        }
+
+        // Deep copy of activePiece
+        this.activePiece = other.activePiece != null ? other.activePiece.clonePiece() : null; // Assuming Piece has a method clonePiece()
+
+        this.activeColor = other.activeColor;
+
+        // Deep copy of List<Piece> pieces
+        this.pieces = new ArrayList<>();
+        for (Piece piece : other.pieces) {
+            this.pieces.add(piece.clonePiece()); // Assuming Piece has a method clonePiece()
+        }
+
+        // Deep copy of capturedPieces
+        this.capturedPieces = new ArrayList<>();
+        for (Piece piece : other.capturedPieces) {
+            this.capturedPieces.add(piece.clonePiece()); // Assuming Piece has a method clonePiece()
+        }
+
+        // Deep copy of whiteKing and blackKing
+        this.whiteKing = other.whiteKing != null ? other.whiteKing.clonePiece() : null; // Assuming Piece has a method clonePiece()
+        this.blackKing = other.blackKing != null ? other.blackKing.clonePiece() : null; // Assuming Piece has a method clonePiece()
+
+        // Deep copy of enPassantInPast
+        this.enPassantInPast = new ArrayList<>();
+        for (Piece piece : other.enPassantInPast) {
+            this.enPassantInPast.add(piece.clonePiece()); // Assuming Piece has a method clonePiece()
+        }
+
+        // Context and GameActivity are typically not cloned as they are tied to the current state of the application
+        this.context = other.context;
+        this.gameActivity = other.gameActivity;
+    }
+
+    void start(String m_mode, String m_category) {
         this.mode = m_mode;
+        this.category = m_category;
         state = Const.STATE_SELECT;
         previousState = state;
         pieces = new ArrayList<>();
@@ -75,9 +126,10 @@ class Game {
         gameActivity.endOfTheGame(w);
     }
 
-    private void changeTurn(){
-        for(Piece i : pieces) if(i.enPassant){
-            if(enPassantInPast.contains(i)){
+    private void changeTurn() {
+        gameActivity.redrawBoard();
+        for(Piece i : pieces) if(i.enPassant) {
+            if(enPassantInPast.contains(i)) {
                 i.enPassant = false;
                 enPassantInPast.remove(i);
             }
@@ -86,26 +138,35 @@ class Game {
 
         Piece king;
         // change to BLACK
-        if(activeColor == Const.WHITE){
+        if (activeColor == Const.WHITE) {
             activeColor = Const.BLACK;
             king = blackKing;
         }
         // change to WHITE
-        else{
+        else {
             activeColor = Const.WHITE;
             king = whiteKing;
         }
 
+        gameActivity.redrawBoard();
         gameActivity.changeTurn(activeColor);
 
         if(!mayCheckBeAvoided(king)) {
             if (activeColor == Const.WHITE) end(Const.BLACK);
             else end(Const.WHITE);
         }
-        else if(isSquareAttacked(king.position, king)){
+        else if(isSquareAttacked(king.position, king)) {
             gameActivity.vibrate(200);
             GameManagement.makeToast(R.string.toast_check, GameManagement.switchColor(activeColor), gameActivity);
         }
+
+        if (activeColor == Const.WHITE) return;
+        Game currentGame = new Game(this);
+        Move bestMove = GameAI.findBestMove(currentGame);
+//        getPieceOn(bestMove.getPiece().position).moveTo(bestMove.getNewPosition());
+        GameAI.makeMove(this, bestMove, true);
+        changeTurn();
+        gameActivity.redrawBoard();
     }
 
     void processTouch(MotionEvent event, Position touchPosition){
@@ -113,22 +174,26 @@ class Game {
             case MotionEvent.ACTION_DOWN:
                 switch (state) {
                     case Const.STATE_SELECT:
-                        for (Piece i : pieces) if(i.color == activeColor)
-                            if (Position.areEqual(i.position, touchPosition)) {
-                                activePiece = i;
-                                movePointers = getMovePointers(activePiece);
-                                attackPointers = getAttackPointers(activePiece);
-                                if(activePiece instanceof King){
-                                    movePointers = removeAttacked(movePointers, activePiece);
-                                    attackPointers = removeAttacked(attackPointers, activePiece);
+                        for (Piece i : pieces) {
+                            if (category == "AI" && activeColor == Const.BLACK) break;
+                            if (i.color == activeColor) {
+                                if (Position.areEqual(i.position, touchPosition)) {
+                                    activePiece = i;
+                                    movePointers = getMovePointers(activePiece);
+                                    attackPointers = getAttackPointers(activePiece);
+                                    if(activePiece instanceof King){
+                                        movePointers = removeAttacked(movePointers, activePiece);
+                                        attackPointers = removeAttacked(attackPointers, activePiece);
+                                    }
+                                    else{
+                                        movePointers = makeKingSafe(activePiece, movePointers);
+                                        attackPointers = makeKingSafe(activePiece, attackPointers);
+                                    }
+                                    state = Const.STATE_MOVE_ATTACK;
+                                    break;
                                 }
-                                else{
-                                    movePointers = makeKingSafe(activePiece, movePointers);
-                                    attackPointers = makeKingSafe(activePiece, attackPointers);
-                                }
-                                state = Const.STATE_MOVE_ATTACK;
-                                break;
                             }
+                        }
                         break;
 
                     case Const.STATE_MOVE_ATTACK:
@@ -183,14 +248,14 @@ class Game {
         }
     }
 
-    private boolean pieceOnSquare(Position square){
+    boolean pieceOnSquare(Position square){
         for(Piece p : pieces) if(p.position != null) // may be null because of getPieceOn()
 
             if (Position.areEqual(p.position, square)) return true;
         return false;
     }
 
-    private Piece getPieceOn(Position p){
+    public Piece getPieceOn(Position p){
         for(Piece i : pieces) if(Position.areEqual(p, i.position)) return i;
         return new Pawn(context, (byte) 0); // protection for null pointer exception
     }
@@ -308,7 +373,7 @@ class Game {
         return castling;
     }
 
-    private Piece getCloserRook(int x, int color){
+    public Piece getCloserRook(int x, int color){
         Piece rook = null;
         int i;
         for(i = 0; i < pieces.size(); i++)

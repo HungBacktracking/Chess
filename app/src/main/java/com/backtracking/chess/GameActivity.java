@@ -47,10 +47,11 @@ import com.bumptech.glide.request.target.ImageViewTarget;
 import java.io.Console;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-public class GameActivity extends AppCompatActivity implements GameManagement {
+public class GameActivity extends AppCompatActivity implements GameManagement, Serializable {
     String mode;
     String category;
 
@@ -269,7 +270,7 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
     public void resetGame(){
         Piece.resetAll();
         game = new Game(this, this);
-        game.start(mode);
+        game.start(mode, category);
         drawState = Const.NO_DRAW;
         pads.get(Const.WHITE).reset();
         pads.get(Const.BLACK).reset();

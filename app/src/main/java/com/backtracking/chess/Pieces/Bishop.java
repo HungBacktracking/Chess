@@ -7,16 +7,41 @@ import com.backtracking.chess.Const;
 import com.backtracking.chess.Position;
 import com.backtracking.chess.R;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bishop extends Piece {
+public class Bishop extends Piece implements Serializable {
+
+    @Override
+    public Piece clonePiece() {
+        Bishop copy = new Bishop(this.color, new Position(this.position));
+        copy.firstMove = this.firstMove;
+        copy.enPassant = this.enPassant;
+        copy.type = this.type;
+        return copy;
+    }
+
+//    public Bishop(Bishop other) {
+//        super(other);
+//        color = other.color;
+//        firstMove = other.firstMove;
+//        enPassant = other.enPassant;
+//        position = new Position(other.position);
+//        type = other.type;
+//    }
+
     public Bishop(Context c, byte _color) {
         super(c, _color);
         type = Const.BISHOP;
         strokeColor = ContextCompat.getColor(context, R.color.colorBishop);
         if (color == Const.WHITE) image = context.getResources().getDrawable(R.drawable.white_bishop);
         else image = context.getResources().getDrawable(R.drawable.black_bishop);
+    }
+
+    public Bishop(byte _color, Position initPos) {
+        super(_color, initPos);
+        type = Const.BISHOP;
     }
 
     public Bishop(Context c, byte _color, Position initPos) {
