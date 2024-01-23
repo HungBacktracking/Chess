@@ -8,11 +8,9 @@ import io.socket.client.IO;
 import io.socket.engineio.client.transports.WebSocket;
 
 public class SocketImpl implements Socket {
-    final String URL = "https://android-socket-server-soeq.vercel.app";
+    final String URL = "http://192.168.1.2:3000";
     private io.socket.client.Socket socket;
     private JSONObject message;
-    private String currentPlayer = null;
-    private String typePlayer;
     private SocketImpl() {
         socket = newSocket();
     }
@@ -66,23 +64,6 @@ public class SocketImpl implements Socket {
     public void on(String event, io.socket.emitter.Emitter.Listener listener) {
         socket.on(event, listener);
     }
-
-    public void setCurrentPlayer(String currentPlayer) {
-        this.currentPlayer = currentPlayer;
-    }
-
-    public String getCurrentPlayer() {
-        return currentPlayer;
-    }
-
-    public void setTypePlayer(String typePlayer) {
-        this.typePlayer = typePlayer;
-    }
-
-    public String getTypePlayer() {
-        return typePlayer;
-    }
-
     public void setMessage(JSONObject message) {
         this.message = message;
     }

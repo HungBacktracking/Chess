@@ -84,9 +84,19 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
 
         if("online".equals(category)) {
             socket = SocketImpl.getInstance();
+
+            try {
+                JSONObject content = new JSONObject();
+                content.put("yourTurn",  false);
+                socket.setMessage(content);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
             if(!socket.isConnected()) {
                 socket.connect();
             }
+
             socket.findMatch();
             socket.on("found_match", new Emitter.Listener() {
                 @Override
