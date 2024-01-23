@@ -406,9 +406,7 @@ class Game {
     }
 
     private void capture(Piece capturedPiece){
-        if ("transformer".equals(mode)) {
-            gameActivity.captureAnimation(activePiece, capturedPiece);
-        }
+        gameActivity.captureAnimation(activePiece, capturedPiece, "transformer".equals(mode));
 
         capturedPieces.add(capturedPiece);
         pieces.remove(capturedPiece);

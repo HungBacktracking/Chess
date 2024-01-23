@@ -26,7 +26,7 @@
             android:id="@+id/black_pad_frame"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:rotation="180">
+            >
             <fragment
                 android:name="com.backtracking.chess.PlayerPadFragment"
                 android:id="@+id/black_pad"

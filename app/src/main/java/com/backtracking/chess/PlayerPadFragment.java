@@ -34,6 +34,14 @@ public class PlayerPadFragment extends Fragment {
     private boolean measureTime;
     private boolean vibrated;
 
+    public static PlayerPadFragment newInstance(int colorKey) {
+        PlayerPadFragment fragment = new PlayerPadFragment();
+        Bundle args = new Bundle();
+        args.putInt("COLOR", colorKey);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     public PlayerPadFragment() {
         // Required empty public constructor
     }
@@ -43,7 +51,13 @@ public class PlayerPadFragment extends Fragment {
                              Bundle savedInstanceState) {
         gameManagement = (GameManagement) getActivity();
 
-        View view = inflater.inflate(R.layout.fragment_player_pad, container, false);
+        View view;
+        if (color == Const.WHITE) {
+            view = inflater.inflate(R.layout.fragment_player_pad, container, false);
+        } else {
+            view = inflater.inflate(R.layout.fragment_opposite_player_pad, container, false);
+        }
+        view = inflater.inflate(R.layout.fragment_player_pad, container, false);
 
         fragmentFrame = view.findViewById(R.id.player_pad_fragment_frame);
         fragmentFrame.setVisibility(View.GONE);

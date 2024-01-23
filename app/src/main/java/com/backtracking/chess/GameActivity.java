@@ -135,8 +135,9 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
     }
 
 
-    void captureAnimation(Piece activePiece,  Piece capturedPiece) {
+    void captureAnimation(Piece activePiece,  Piece capturedPiece, boolean isTransform) {
         String resourceName = "";
+        if (!isTransform) resourceName += "classic_";
         if (activePiece.color == Const.WHITE) resourceName += "white_";
         else resourceName += "black_";
 
@@ -181,8 +182,9 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
 
     public void openPromotionFragment(byte color){
         fragmentFrame.bringToFront();
-        if (color == Const.BLACK) fragmentFrame.setRotation(180);
-        if (game.activeColor == Const.WHITE) fragmentFrame.setRotation(0);
+//        if (color == Const.BLACK) fragmentFrame.setRotation(180);
+//        if (game.activeColor == Const.WHITE)
+        fragmentFrame.setRotation(0);
         PromotionFragment promotionFragment = new PromotionFragment();
         Bundle activeColor = new Bundle();
         activeColor.putByte("color", color);
@@ -217,6 +219,9 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
         blackPadFrame.setLayoutParams(padParams);
 
         pads = new SparseArray<>();
+        PlayerPadFragment whitePlayer = PlayerPadFragment.newInstance(Const.WHITE);
+        PlayerPadFragment blackPlayer = PlayerPadFragment.newInstance(Const.BLACK);
+
         pads.put(Const.WHITE, (PlayerPadFragment) getSupportFragmentManager().findFragmentById(R.id.white_pad));
         pads.get(Const.WHITE).setUp(Const.WHITE, beginningTime, addingTime);
         pads.put(Const.BLACK, (PlayerPadFragment) getSupportFragmentManager().findFragmentById(R.id.black_pad));

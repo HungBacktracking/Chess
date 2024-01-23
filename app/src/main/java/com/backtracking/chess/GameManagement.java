@@ -42,7 +42,6 @@ interface GameManagement {
         toastText.setText(activity.getResources().getText(stringId));
         int pxY = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 25, activity.getResources().getDisplayMetrics());
         if(color == Const.WHITE){
-            toastLayout.setRotation(180);
             toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, pxY);
         } else toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, pxY);
         toast.setView(toastLayout);
