@@ -29,6 +29,16 @@ public abstract class Piece{
 
     final Context context; // necessary for processing colors
 
+    public abstract Piece clonePiece();
+//    {
+//        context = other.context;
+//        color = other.color;
+//        firstMove = other.firstMove;
+//        enPassant = other.enPassant;
+//        position = new Position(other.position);
+//        type = other.type;
+//    }
+
     Piece(Context c, byte _color){
         context = c;
         color = _color;
@@ -36,6 +46,15 @@ public abstract class Piece{
         enPassant = false;
 
         position = initialPosition();
+    }
+
+    Piece(byte _color, Position initPos){
+        context = null;
+        color = _color;
+        firstMove = true;
+        enPassant = false;
+
+        position = initPos;
     }
 
     Piece(Context c, byte _color, Position initPos){
