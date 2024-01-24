@@ -49,11 +49,12 @@ import org.json.JSONObject;
 import java.io.Console;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.Serializable;
 import java.util.Date;
 
 import io.socket.emitter.Emitter;
 
-public class GameActivity extends AppCompatActivity implements GameManagement {
+public class GameActivity extends AppCompatActivity implements GameManagement, Serializable {
     String mode;
     String category;
     SocketImpl socket;
@@ -101,9 +102,19 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
 
         if("online".equals(category)) {
             socket = SocketImpl.getInstance();
+
+            try {
+                JSONObject content = new JSONObject();
+                content.put("yourTurn",  false);
+                socket.setMessage(content);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
             if(!socket.isConnected()) {
                 socket.connect();
             }
+
             socket.findMatch();
             socket.on("found_match", new Emitter.Listener() {
                 @Override
@@ -286,13 +297,16 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
         board.setOnTouchListener((view, event) -> {
             Position p = board.getSquare(new Position((int) event.getX(), (int) event.getY()));
             try {
-                game.processTouch(event, p, socket.getMessage().getBoolean("yourTurn"));
-            } catch (JSONException e) {
+                JSONObject message = socket.getMessage();
+                if(message != null)
+                    game.processTouch(event, p, socket.getMessage().getBoolean("yourTurn"));
+                else
+                    game.processTouch(event, p, null);
+            } catch (Exception e) {
                 game.processTouch(event, p, null);
             }
 
             redrawBoard();
-
             return true;
         });
 
@@ -317,7 +331,7 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
     public void resetGame(){
         Piece.resetAll();
         game = new Game(this, this);
-        game.start(mode);
+        game.start(mode, category);
         drawState = Const.NO_DRAW;
         pads.get(Const.WHITE).reset();
         pads.get(Const.BLACK).reset();

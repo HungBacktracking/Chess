@@ -8,16 +8,32 @@ import com.backtracking.chess.Const;
 import com.backtracking.chess.Position;
 import com.backtracking.chess.R;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class King extends Piece {
+public class King extends Piece implements Serializable {
+
+    @Override
+    public Piece clonePiece() {
+        King copy = new King(this.color, new Position(this.position));
+        copy.firstMove = this.firstMove;
+        copy.enPassant = this.enPassant;
+        copy.type = this.type;
+        return copy;
+    }
+
     public King(Context c, byte _color) {
         super(c, _color);
         type = Const.KING;
         strokeColor = ContextCompat.getColor(context, R.color.colorKing);
         if (color == Const.WHITE) image = context.getResources().getDrawable(R.drawable.white_king);
         else image = context.getResources().getDrawable(R.drawable.black_king);
+    }
+
+    public King(byte _color, Position initPos) {
+        super(_color, initPos);
+        type = Const.KING;
     }
 
     @Override

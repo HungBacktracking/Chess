@@ -26,12 +26,13 @@ public class MainActivity extends AppCompatActivity implements UtilityFragment.I
 
         Button startGameButton = findViewById(R.id.start_game_button);
         startGameButton.setOnClickListener(view -> {
-            Intent chooseModeActivity = new Intent(getApplicationContext(), CategoryActivity.class);
+            Intent chooseModeActivity = new Intent(getApplicationContext(), ChooseModeActivity.class);
             startActivity(chooseModeActivity);
         });
 
         Button settingsButton = findViewById(R.id.settings_button);
         settingsButton.setOnClickListener(view -> {
+            if (utilityFrame.getVisibility() == View.VISIBLE) closeUtility();
             utilityFragment = new SettingsFragment();
             getFragmentManager().beginTransaction().add(
                     R.id.utility_fragment_frame, utilityFragment).commit();
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements UtilityFragment.I
 
         Button aboutButton = findViewById(R.id.about_button);
         aboutButton.setOnClickListener(view -> {
+            if (utilityFrame.getVisibility() == View.VISIBLE) closeUtility();
             utilityFragment = new AboutFragment();
             getFragmentManager().beginTransaction().add(
                     R.id.utility_fragment_frame, utilityFragment).commit();
