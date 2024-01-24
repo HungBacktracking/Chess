@@ -1,51 +1,235 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
+    <ImageView
+        android:id="@+id/back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:elevation="10dp"
+        android:translationZ="10dp"
+        android:src="@drawable/back" />
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <ImageView
+        android:id="@+id/oval_image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context="eu.jrie.lets_chess.MainActivity"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="-300dp"
+        android:layout_marginTop="-940dp"
+        android:layout_marginEnd="-300dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/oval"></ImageView>
 
-        <ImageView
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:contentDescription="@string/app_name"
-            android:layout_marginBottom="15dp"
-            android:src="@drawable/chess_logo"/>
+    <ImageView
+        android:id="@+id/play_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/top_navigation"
+        android:src="@drawable/play_chess_icon">
+
+    </ImageView>
+
+    <!-- Top navigation bar -->
+    <LinearLayout
+        android:id="@+id/top_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:paddingBottom="5dp">
 
         <TextView
-            android:layout_width="250dp"
-            android:layout_height="70dp"
-            android:layout_marginBottom="30dp"
-
-            android:text="@string/app_name"
-            android:textAlignment="gravity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Play"
+            android:layout_gravity="center_horizontal"
             android:gravity="center"
-            android:textSize="40sp"
-            android:textAllCaps="false"/>
-
-        <Button
-            style="@style/mainButtonStyle"
-            android:id="@+id/classic_mode_button"
-            android:text="@string/classic_mode_button"/>
-
-        <Button
-            style="@style/mainButtonStyle"
-            android:id="@+id/transformer_mode_button"
-            android:text="@string/transformer_mode_button"/>
-
-        <Button
-            style="@style/mainButtonStyle"
-            android:id="@+id/special_display_button"
-            android:text="@string/special_display_button"/>
-
+            android:elevation="10dp"
+            android:textSize="35dp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF" />
     </LinearLayout>
 
+    <!-- Tab layout for FIND MATCH, PLAY TOGETHER, PLAY WITH AI -->
+    <LinearLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/play_icon"
+        android:orientation="horizontal"
+        android:layout_marginTop="25dp"
+        android:weightSum="3">
+
+        <!-- Define buttons for each tab -->
+        <Button
+            android:id="@+id/play_online_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FIND MATCH"
+            android:background="@drawable/active_category_button"
+            android:textColor="#000000"
+            android:layout_marginHorizontal="15dp"
+            android:layout_weight="1"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Transformer Mode Button -->
+        <Button
+            android:id="@+id/play_local_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PLAY LOCAL"
+            android:background="@drawable/category_button"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="15dp"
+            android:textColor="#000000"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Hidden Piece Mode Button -->
+        <Button
+            android:id="@+id/play_AI_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VS COMPUTER"
+            android:layout_weight="1"
+            android:background="@drawable/category_button"
+            android:layout_marginHorizontal="15dp"
+            android:textColor="#000000"/>
+    </LinearLayout>
+
+    <!-- Game mode selection area -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tab_layout"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="0dp"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/classic_mode_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="15dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/mode_button">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/chess_classic">
+            </ImageView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Classic Mode"
+                    android:textSize="25dp"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold">
+                </TextView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="Amazingly fantastic Traditional Chess for you!">
+                </TextView>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/transformer_mode_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="15dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/mode_button">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/chess_transform">
+            </ImageView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Transformer Mode"
+                    android:textSize="25dp"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold">
+                </TextView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="Amazingly fantastic Traditional Chess for you!">
+                </TextView>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/hidden_piece_mode_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="15dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/mode_button">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/chess_hidden">
+            </ImageView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Hidden Piece Mode"
+                    android:textSize="25dp"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold">
+                </TextView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="Amazingly fantastic Traditional Chess for you!">
+                </TextView>
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
 </RelativeLayout>

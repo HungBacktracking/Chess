@@ -128,6 +128,7 @@ class Game implements Serializable {
 
     private void changeTurn() {
         gameActivity.redrawBoard();
+
         for(Piece i : pieces) if(i.enPassant) {
             if(enPassantInPast.contains(i)) {
                 i.enPassant = false;
@@ -160,6 +161,7 @@ class Game implements Serializable {
             GameManagement.makeToast(R.string.toast_check, GameManagement.switchColor(activeColor), gameActivity);
         }
 
+        if (!"AI".equals(category)) return;
         if (activeColor == Const.WHITE) return;
         Game currentGame = new Game(this);
         Move bestMove = GameAI.findBestMove(currentGame);
@@ -197,22 +199,28 @@ class Game implements Serializable {
                         break;
 
                     case Const.STATE_MOVE_ATTACK:
+                        boolean isPromotion = false;
                         state = Const.STATE_SELECT; // here because of possible change to STATE_END
                         if (Position.areEqual(touchPosition, activePiece.position)) break;
                         for (Position i : movePointers)
                             if (Position.areEqual(i, touchPosition)) {
-                                if(activePiece instanceof King)
+                                if (activePiece instanceof King)
                                     if(Math.abs(activePiece.position.x - touchPosition.x) > 1){
                                         getCloserRook(touchPosition.x, activePiece.color).moveTo(
                                                 new Position((activePiece.position.x + touchPosition.x)/2, touchPosition.y));
                                 }
                                 activePiece.moveTo(touchPosition);
-                                if(activePiece instanceof Pawn){ // check promotion possibility
-                                    if(activePiece.color == Const.WHITE
-                                            && activePiece.position.y == 7) promotion(activePiece);
-                                    else if(activePiece.position.y == 0) promotion(activePiece);
+                                if (activePiece instanceof Pawn){ // check promotion possibility
+                                    if (activePiece.color == Const.WHITE && activePiece.position.y == 7) {
+                                        isPromotion = true;
+                                        promotion(activePiece);
+                                    }
+                                    else if (activePiece.position.y == 0) {
+                                        isPromotion = true;
+                                        promotion(activePiece);
+                                    }
                                 }
-                                changeTurn();
+                                if (!isPromotion) changeTurn();
                                 break;
                             }
                         for (Position i : attackPointers)
@@ -220,7 +228,10 @@ class Game implements Serializable {
                                 if(activePiece instanceof Pawn){ // check promotion possibility
                                     if(activePiece.color == Const.WHITE
                                             && activePiece.position.y == 6) promotion(activePiece);
-                                    else if(activePiece.color == Const.BLACK && activePiece.position.y == 1) promotion(activePiece);
+                                    else if(activePiece.color == Const.BLACK && activePiece.position.y == 1) {
+                                        isPromotion = true;
+                                        promotion(activePiece);
+                                    }
                                 }
 
                                 if(activePiece instanceof Pawn) if(!pieceOnSquare(i)){
@@ -232,7 +243,7 @@ class Game implements Serializable {
                                 if(pieceOnSquare(touchPosition)) capture(getPieceOn(touchPosition));
 
                                 activePiece.moveTo(touchPosition);
-                                changeTurn();
+                                if (!isPromotion) changeTurn();
                                 break;
                             }
 
@@ -539,6 +550,8 @@ class Game implements Serializable {
 
         pieces.remove(activePiece);
         gameActivity.redrawBoard();
+
+        if ("AI".equals(category)) changeTurn();
     }
 
     void pause(){
