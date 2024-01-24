@@ -186,21 +186,32 @@ class Game implements Serializable {
     }
 
     void processMoveCompetitor(Position oldP, Position newP) {
-        for (Piece chosenPiece : pieces)
-            if (Position.areEqual(chosenPiece.position, oldP)){
-                chosenPiece.moveTo(newP);
+        gameActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                Piece competitorPiece = null;
+                for (Piece chosenPiece : pieces)
+                    if (Position.areEqual(chosenPiece.position, oldP)){
+                        competitorPiece = chosenPiece;
+                        if(pieceOnSquare(newP))
+                            capture(getPieceOn(newP));
+                        break;
+                    }
+                if(competitorPiece != null)
+                    competitorPiece.moveTo(newP);
+                changeTurn();
+                gameActivity.redrawBoard();
+                JSONObject socketMessage = gameActivity.socket.getMessage();
+                try {
+                    socketMessage.put("yourTurn", true);
+                    gameActivity.socket.setMessage(socketMessage);
+                }catch (Exception e) {
+                    System.out.println("Error in game.java " + e);
+                }
+
             }
-        changeTurn();
-        gameActivity.redrawBoard();
-
-        JSONObject socketMessage = gameActivity.socket.getMessage();
-        try {
-            socketMessage.put("yourTurn", true);
-            gameActivity.socket.setMessage(socketMessage);
-        }catch (Exception e) {
-            System.out.println("Error in game.java " + e);
-        }
-
+        });
     }
 
     void processTouch(MotionEvent event, Position touchPosition, Boolean yourTurn){
@@ -328,9 +339,10 @@ class Game implements Serializable {
     }
 
     boolean pieceOnSquare(Position square){
-        for(Piece p : pieces) if (p.position != null) // may be null because of getPieceOn()
-
-            if (Position.areEqual(p.position, square)) return true;
+        for(Piece p : pieces)
+            if (p.position != null) // may be null because of getPieceOn()
+                if (Position.areEqual(p.position, square))
+                    return true;
         return false;
     }
 
