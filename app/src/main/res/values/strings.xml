@@ -23,7 +23,7 @@
     <string name="special_display_button">Hidden Piece Mode</string>
 
     <!--settings-->
-    <string name="settings_header">settings</string>
+    <string name="settings_header">Settings</string>
     <string name="preference_display_title">display mode</string>
     <string name="preference_display_summary">choose between classic and modern piece set</string>
     <string name="preference_display_dialog">choose display mode</string>

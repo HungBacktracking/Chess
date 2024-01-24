@@ -21,10 +21,9 @@ public class GameAI {
         List<Move> allMoves = getAllPossibleMoves(currentGame);
 
         int depth = 1;
-        if (allMoves != null && allMoves.size() < 20) depth = 2;
-        else if (allMoves != null && allMoves.size() < 10) depth = 3;
-        else if (allMoves != null && allMoves.size() < 7) depth = 4;
-        else if (allMoves != null && allMoves.size() <= 3) depth = 5;
+        if (allMoves != null && allMoves.size() < 7) depth = 2;
+        else if (allMoves != null && allMoves.size() < 5) depth = 3;
+        else if (allMoves != null && allMoves.size() <= 3) depth = 4;
 
         for (Move move : allMoves) {
             Game tmpGame = new Game(currentGame);
@@ -48,7 +47,7 @@ public class GameAI {
             if (piece instanceof King) {
                 if ((piece.color == Const.BLACK && maximizingPlayer) || (piece.color != Const.BLACK && !maximizingPlayer)) {
                     if (!mayCheckBeAvoided(game, piece)) return evaluateBoard(game, maximizingPlayer) - 10000;
-                    else if (isSquareAttacked(game, piece.position, piece)) return evaluateBoard(game, maximizingPlayer) - 100;
+                    else if (isSquareAttacked(game, piece.position, piece)) return evaluateBoard(game, maximizingPlayer) - 1000;
                 }
             }
         }
@@ -152,7 +151,7 @@ public class GameAI {
                     if (!(bestMove.getPiece() instanceof Pawn) || (!(bestMove.getPiece().color == Const.WHITE && bestMove.getPiece().position.y == 6)
                             && !(bestMove.getPiece().color == Const.BLACK && bestMove.getPiece().position.y == 1))) { // check promotion possibility
 
-                        if (game.pieceOnSquare(bestMove.getNewPosition())) {
+                        if (game.pieceOnSquare(bestMove.getNewPosition()) && !(game.getPieceOn(bestMove.getNewPosition()) instanceof King)) {
                             Class<?> capturedPieceType = game.getPieceOn(bestMove.getNewPosition()).getClass();
                             Piece newPiece = createNewPiece(game, capturedPieceType, bestMove.getPiece().color, game.getPieceOn(bestMove.getNewPosition()).position);
                             game.pieces.add(newPiece);
@@ -161,7 +160,7 @@ public class GameAI {
                     }
                 }
                 if (game.pieceOnSquare(bestMove.getNewPosition())) {
-                    game.pieces.remove(getPieceOn(game, bestMove.getNewPosition()));
+                    game.pieces.remove(game.getPieceOn(bestMove.getNewPosition()));
                 }
 
                 game.getPieceOn(bestMove.getPiece().position).moveTo(bestMove.getNewPosition());
@@ -217,12 +216,6 @@ public class GameAI {
             clonePieces.add(piece.clonePiece());
 
         for (Piece piece : clonePieces) {
-            p = piece.clonePiece();
-            int x = piece.position.x;
-            int y = piece.position.y;
-            if (x == 0 && y == 6) {
-                int a = 1;
-            }
             if (piece.color != game.activeColor) continue;
             movePointers = getMovePointers(game, piece);
             attackPointers = getAttackPointers(game, piece);
