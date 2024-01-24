@@ -116,21 +116,21 @@ abstract class BoardView extends View {
         for(Piece i : piecesToDraw){
             pieceImage = i.image;
             temp = toPixels(i.position);
-            if(i.color == Const.BLACK){
-                canvas.save();
-                canvas.rotate(180, getWidth()/2, getHeight()/2);
-                temp.y = getWidth() - temp.y - oneTileWidth;
-                temp.x = getWidth() - temp.x - oneTileWidth;
+//            if(i.color == Const.BLACK){
+//                canvas.save();
+//                canvas.rotate(180, getWidth()/2, getHeight()/2);
+//                temp.y = getWidth() - temp.y - oneTileWidth;
+//                temp.x = getWidth() - temp.x - oneTileWidth;
+//                pieceImage.setBounds(temp.x + oneTileWidth / 10, temp.y + oneTileWidth / 10,
+//                        temp.x + oneTileWidth - oneTileWidth / 10, temp.y + oneTileWidth - oneTileWidth / 10);
+//                pieceImage.draw(canvas);
+//                canvas.restore();
+//            }
+//            else {
                 pieceImage.setBounds(temp.x + oneTileWidth / 10, temp.y + oneTileWidth / 10,
                         temp.x + oneTileWidth - oneTileWidth / 10, temp.y + oneTileWidth - oneTileWidth / 10);
                 pieceImage.draw(canvas);
-                canvas.restore();
-            }
-            else {
-                pieceImage.setBounds(temp.x + oneTileWidth / 10, temp.y + oneTileWidth / 10,
-                        temp.x + oneTileWidth - oneTileWidth / 10, temp.y + oneTileWidth - oneTileWidth / 10);
-                pieceImage.draw(canvas);
-            }
+//            }
 
         }
     }

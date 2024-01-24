@@ -7,10 +7,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.graphics.drawable.Animatable2Compat;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -27,19 +30,31 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.backtracking.chess.Pieces.Bishop;
+import com.backtracking.chess.Pieces.King;
+import com.backtracking.chess.Pieces.Knight;
+import com.backtracking.chess.Pieces.Pawn;
 import com.backtracking.chess.Pieces.Piece;
+import com.backtracking.chess.Pieces.Queen;
+import com.backtracking.chess.Pieces.Rook;
 import com.backtracking.chess.Views.Board;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.gif.GifDrawable;
+import com.bumptech.glide.request.target.ImageViewTarget;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.Serializable;
 import java.util.Date;
 
 import io.socket.emitter.Emitter;
 
-public class GameActivity extends AppCompatActivity implements GameManagement {
+public class GameActivity extends AppCompatActivity implements GameManagement, Serializable {
     String mode;
     String category;
     SocketImpl socket;
@@ -52,6 +67,7 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
     private SparseArray<PlayerPadFragment> pads;
     private GameEndFragment gameEndFragment;
     private Button menuButton;
+    ImageView animation;
     private ImageView brandingImage;
 
     private byte displayMode;
@@ -63,6 +79,8 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+
+        animation = findViewById(R.id.animation);
         menuButton = findViewById(R.id.game_menu_button);
         brandingImage = findViewById(R.id.branding_image);
         brandingImage.setVisibility(View.INVISIBLE);
@@ -171,6 +189,33 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
         board.redraw(game.pieces, game.movePointers, game.attackPointers, displayMode);
     }
 
+
+    void captureAnimation(Piece activePiece,  Piece capturedPiece, boolean isTransform) {
+        String resourceName = "";
+        if (!isTransform) resourceName += "classic_";
+        if (activePiece.color == Const.WHITE) resourceName += "white_";
+        else resourceName += "black_";
+
+        if (activePiece instanceof King) resourceName += "king_";
+        else if (activePiece instanceof Queen) resourceName += "queen_";
+        else if (activePiece instanceof Bishop) resourceName += "bishop_";
+        else if (activePiece instanceof Knight) resourceName += "knight_";
+        else if (activePiece instanceof Rook) resourceName += "rook_";
+        else if (activePiece instanceof Pawn) resourceName += "pawn_";
+
+        if (capturedPiece instanceof King) resourceName += "king";
+        else if (capturedPiece instanceof Queen) resourceName += "queen";
+        else if (capturedPiece instanceof Bishop) resourceName += "bishop";
+        else if (capturedPiece instanceof Knight) resourceName += "knight";
+        else if (capturedPiece instanceof Rook) resourceName += "rook";
+        else if (capturedPiece instanceof Pawn) resourceName += "pawn";
+
+        int resourceId = this.getResources().getIdentifier(resourceName, "raw", this.getPackageName());
+        animation.setVisibility(View.VISIBLE);
+        System.out.println(resourceName + resourceId);
+        Glide.with(this).load(resourceId).asGif().into(new CustomGifDrawable(animation));
+    }
+
     public void updatePads(Piece capturedPiece){
         switch (capturedPiece.color){
             case Const.WHITE:
@@ -192,8 +237,9 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
 
     public void openPromotionFragment(byte color){
         fragmentFrame.bringToFront();
-        if (color == Const.BLACK) fragmentFrame.setRotation(180);
-        if (game.activeColor == Const.WHITE) fragmentFrame.setRotation(0);
+//        if (color == Const.BLACK) fragmentFrame.setRotation(180);
+//        if (game.activeColor == Const.WHITE)
+        fragmentFrame.setRotation(0);
         PromotionFragment promotionFragment = new PromotionFragment();
         Bundle activeColor = new Bundle();
         activeColor.putByte("color", color);
@@ -228,6 +274,9 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
         blackPadFrame.setLayoutParams(padParams);
 
         pads = new SparseArray<>();
+        PlayerPadFragment whitePlayer = PlayerPadFragment.newInstance(Const.WHITE);
+        PlayerPadFragment blackPlayer = PlayerPadFragment.newInstance(Const.BLACK);
+
         pads.put(Const.WHITE, (PlayerPadFragment) getSupportFragmentManager().findFragmentById(R.id.white_pad));
         pads.get(Const.WHITE).setUp(Const.WHITE, beginningTime, addingTime);
         pads.put(Const.BLACK, (PlayerPadFragment) getSupportFragmentManager().findFragmentById(R.id.black_pad));
@@ -282,7 +331,7 @@ public class GameActivity extends AppCompatActivity implements GameManagement {
     public void resetGame(){
         Piece.resetAll();
         game = new Game(this, this);
-        game.start(mode);
+        game.start(mode, category);
         drawState = Const.NO_DRAW;
         pads.get(Const.WHITE).reset();
         pads.get(Const.BLACK).reset();
