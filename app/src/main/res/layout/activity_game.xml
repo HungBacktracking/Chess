@@ -7,6 +7,30 @@
     android:orientation="vertical"
     android:gravity="center">
 
+    <ImageView
+        android:id="@+id/back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:elevation="10dp"
+        android:translationZ="10dp"
+        android:src="@drawable/back" />
+
+    <TextView
+        android:id="@+id/finding"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Finding..."
+        android:textColor="@android:color/white"
+        android:textSize="35dp"
+        android:elevation="10dp"
+        android:translationZ="10dp"
+        android:padding="25dp"
+        android:background="@drawable/mode_button"
+        android:layout_centerInParent="true"
+        android:gravity="center">
+    </TextView>
+
     <FrameLayout
         android:id="@+id/game_fragment_frame"
         android:layout_width="match_parent"
