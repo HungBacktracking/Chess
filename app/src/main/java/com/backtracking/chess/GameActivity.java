@@ -28,6 +28,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.backtracking.chess.Pieces.Bishop;
@@ -99,29 +100,66 @@ public class GameActivity extends AppCompatActivity implements GameManagement, S
         mode = getIntent().getStringExtra("mode");
         category = getIntent().getStringExtra("category");
 
+        ImageView backButton = findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
-        if("online".equals(category)) {
+
+        if ("online".equals(category)) {
             socket = SocketImpl.getInstance();
 
             try {
                 JSONObject content = new JSONObject();
                 content.put("yourTurn",  false);
                 socket.setMessage(content);
-            }catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            if(!socket.isConnected()) {
+            if (!socket.isConnected()) {
                 socket.connect();
             }
 
             socket.findMatch();
+
             socket.on("found_match", new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
                     JSONObject content = (JSONObject) args[0];
                     System.out.println("found match: " + content);
                     socket.setMessage(content);
+
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+
+                            TextView findingTextView = findViewById(R.id.finding);
+                            findingTextView.setVisibility(View.GONE);
+                            backButton.setVisibility(View.GONE);
+
+                            // setting up timers
+                            int beginningTime = 0;
+                            int addingTime = 0;
+
+                            if (timerOn) {
+
+                                menuButton.setVisibility(View.GONE);
+
+                                SetTimerFragment setTimerFragment = new SetTimerFragment();
+                                getSupportFragmentManager().beginTransaction().add(R.id.game_fragment_frame, setTimerFragment).commit();
+                                fragmentFrame.setVisibility(View.VISIBLE);
+                                fragmentFrame.bringToFront();
+                            }
+                            else initGame(beginningTime, addingTime);
+
+                        }
+                    });
+
                 }
             });
 
@@ -151,10 +189,17 @@ public class GameActivity extends AppCompatActivity implements GameManagement, S
         if ("hidden".equals(mode)) displayMode = Const.MODERN_MODE;
         else displayMode = Const.CLASSIC_MODE;
 
+        if ("online".equals(category)) return;
+
+        TextView findingTextView = findViewById(R.id.finding);
+        findingTextView.setVisibility(View.GONE);
+        backButton.setVisibility(View.GONE);
+
         // setting up timers
         int beginningTime = 0;
         int addingTime = 0;
-        if(timerOn){
+
+        if (timerOn) {
             menuButton.setVisibility(View.GONE);
 
             SetTimerFragment setTimerFragment = new SetTimerFragment();
