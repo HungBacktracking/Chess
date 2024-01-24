@@ -12,7 +12,7 @@ import com.backtracking.chess.Pieces.Pawn;
 import com.backtracking.chess.Pieces.Piece;
 import com.backtracking.chess.Pieces.Queen;
 import com.backtracking.chess.Pieces.Rook;
-
+import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -171,11 +171,31 @@ class Game implements Serializable {
         gameActivity.redrawBoard();
     }
 
-    void processTouch(MotionEvent event, Position touchPosition){
+    void processMoveCompetitor(Position oldP, Position newP) {
+        for (Piece chosenPiece : pieces)
+            if (Position.areEqual(chosenPiece.position, oldP)){
+                chosenPiece.moveTo(newP);
+            }
+        changeTurn();
+        gameActivity.redrawBoard();
+
+        JSONObject socketMessage = gameActivity.socket.getMessage();
+        try {
+            socketMessage.put("yourTurn", true);
+            gameActivity.socket.setMessage(socketMessage);
+        }catch (Exception e) {
+            System.out.println("Error in game.java " + e);
+        }
+
+    }
+
+    void processTouch(MotionEvent event, Position touchPosition, Boolean yourTurn){
+        System.out.println("yourTurn " + yourTurn);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 switch (state) {
                     case Const.STATE_SELECT:
+                        if(yourTurn != null && !yourTurn) break;
                         for (Piece i : pieces) {
                             if (category == "AI" && activeColor == Const.BLACK) break;
                             if (i.color == activeColor) {
@@ -200,8 +220,42 @@ class Game implements Serializable {
 
                     case Const.STATE_MOVE_ATTACK:
                         boolean isPromotion = false;
+                        if(yourTurn != null && !yourTurn) break;
                         state = Const.STATE_SELECT; // here because of possible change to STATE_END
                         if (Position.areEqual(touchPosition, activePiece.position)) break;
+                        if(yourTurn != null) {
+
+                            // check touch event in movePointer or attackPointer
+
+                            boolean isValid = false;
+
+                            for (Position i : movePointers)
+                                if (Position.areEqual(i, touchPosition)) {
+                                    isValid = true;
+                                    break;
+                                }
+                            for (Position i : attackPointers)
+                                if (Position.areEqual(i, touchPosition)) {
+                                    isValid = true;
+                                    break;
+                                }
+
+                            if(isValid) {
+                                try{
+                                    JSONObject socketMessage = gameActivity.socket.getMessage();
+                                    socketMessage.put("fromX", activePiece.position.x);
+                                    socketMessage.put("fromY", activePiece.position.y);
+                                    socketMessage.put("toX", touchPosition.x);
+                                    socketMessage.put("toY", touchPosition.y);
+                                    gameActivity.socket.sendMessage("move",socketMessage);
+                                    socketMessage.put("yourTurn", false);
+                                    gameActivity.socket.setMessage(socketMessage);
+                                }catch(Exception e) {
+                                    System.out.println("Error in game.java " + e);
+                                }
+                            }
+
+                        }
                         for (Position i : movePointers)
                             if (Position.areEqual(i, touchPosition)) {
                                 if (activePiece instanceof King)
