@@ -11,6 +11,8 @@ public interface Const {
     byte ROOK = 14;
     byte QUEEN = 15;
     byte KING = 16;
+    byte RIVER = 19;
+    byte ROCK = 20;
 
     byte STATE_SELECT = 21;
     byte STATE_MOVE_ATTACK = 22;

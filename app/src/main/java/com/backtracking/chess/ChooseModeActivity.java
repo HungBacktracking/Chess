@@ -90,6 +90,14 @@ public class ChooseModeActivity extends AppCompatActivity {
             startActivity(startGameActivity);
         });
 
+        LinearLayout startBlockageButton = findViewById(R.id.blockage_mode_button);
+        startBlockageButton.setOnClickListener(view -> {
+            Intent startGameActivity = new Intent(getApplicationContext(), GameActivity.class);
+            startGameActivity.putExtra("mode", "blockage");
+            startGameActivity.putExtra("category", category);
+            startActivity(startGameActivity);
+        });
+
         LinearLayout startHiddenPieceButton = findViewById(R.id.hidden_piece_mode_button);
         startHiddenPieceButton.setOnClickListener(view -> {
             Intent startGameActivity = new Intent(getApplicationContext(), GameActivity.class);

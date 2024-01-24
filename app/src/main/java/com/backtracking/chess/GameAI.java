@@ -6,6 +6,8 @@ import com.backtracking.chess.Pieces.Knight;
 import com.backtracking.chess.Pieces.Pawn;
 import com.backtracking.chess.Pieces.Piece;
 import com.backtracking.chess.Pieces.Queen;
+import com.backtracking.chess.Pieces.River;
+import com.backtracking.chess.Pieces.Rock;
 import com.backtracking.chess.Pieces.Rook;
 
 import java.util.ArrayList;
@@ -348,7 +350,7 @@ public class GameAI {
             tempAttackPointer = tempIterator.next();
             if (!pieceOnSquare(game, tempAttackPointer)) tempIterator.remove();
             else {
-                if (getPieceOn(game, tempAttackPointer).color == p.color)
+                if (getPieceOn(game, tempAttackPointer).color == p.color || getPieceOn(game, tempAttackPointer) instanceof Rock || getPieceOn(game, tempAttackPointer) instanceof River)
                     tempIterator.remove();
                 tempX = tempAttackPointer.x;
                 tempY = tempAttackPointer.y;

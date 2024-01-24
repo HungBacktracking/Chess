@@ -11,6 +11,8 @@ import com.backtracking.chess.Pieces.Knight;
 import com.backtracking.chess.Pieces.Pawn;
 import com.backtracking.chess.Pieces.Piece;
 import com.backtracking.chess.Pieces.Queen;
+import com.backtracking.chess.Pieces.River;
+import com.backtracking.chess.Pieces.Rock;
 import com.backtracking.chess.Pieces.Rook;
 import org.json.JSONObject;
 import java.io.Serializable;
@@ -103,8 +105,8 @@ class Game implements Serializable {
 
         activeColor = Const.WHITE;
 
-        for (byte color = Const.WHITE; color <= Const.BLACK; color++){
-            for(int i = 0; i < 8; i++) pieces.add(new Pawn(context, color));
+        for (byte color = Const.WHITE; color <= Const.BLACK; color++) {
+            for (int i = 0; i < 8; i++) pieces.add(new Pawn(context, color));
             pieces.add(new Bishop(context, color));
             pieces.add(new Bishop(context, color));
             pieces.add(new Knight(context, color));
@@ -113,8 +115,20 @@ class Game implements Serializable {
             pieces.add(new Rook(context, color));
             pieces.add(new Queen(context, color));
             pieces.add(new King(context, color));
-            if(color == Const.WHITE) whiteKing = pieces.get(pieces.size()-1);
-            else blackKing = pieces.get(pieces.size()-1);
+            if (color == Const.WHITE) whiteKing = pieces.get(pieces.size() - 1);
+            else blackKing = pieces.get(pieces.size() - 1);
+        }
+
+        if ("blockage".equals(mode)) {
+            pieces.add(new Rock(context, Const.WHITE));
+
+            while (true) {
+                River river = new River(context, Const.WHITE);
+                if (!pieceOnSquare(river.position)) {
+                    pieces.add(river);
+                    break;
+                }
+            }
         }
 
         gameActivity.changeTurn(activeColor);
@@ -314,7 +328,7 @@ class Game implements Serializable {
     }
 
     boolean pieceOnSquare(Position square){
-        for(Piece p : pieces) if(p.position != null) // may be null because of getPieceOn()
+        for(Piece p : pieces) if (p.position != null) // may be null because of getPieceOn()
 
             if (Position.areEqual(p.position, square)) return true;
         return false;
@@ -332,22 +346,22 @@ class Game implements Serializable {
         Position tempMovePointer;
         while (tempIterator.hasNext()) {
             tempMovePointer = tempIterator.next();
-            if(tempMovePointer.x > 7 || tempMovePointer.x < 0 || tempMovePointer.y > 7 || tempMovePointer.y < 0){
+            if (tempMovePointer.x > 7 || tempMovePointer.x < 0 || tempMovePointer.y > 7 || tempMovePointer.y < 0) {
                 tempIterator.remove();
                 continue;
             }
-            if(pieceOnSquare(tempMovePointer)){
+            if (pieceOnSquare(tempMovePointer)) {
                 tempIterator.remove();
                 tempX = tempMovePointer.x; tempY = tempMovePointer.y;
                 sigX = (int) Math.signum(p.position.x - tempX);
                 sigY = (int) Math.signum(p.position.y - tempY);
-                while(tempIterator.hasNext()){
+                while (tempIterator.hasNext()) {
                     tempMovePointer = tempIterator.next();
                     tempX = tempMovePointer.x; tempY = tempMovePointer.y;
-                    if(sigX == Math.signum(p.position.x - tempX)
+                    if (sigX == Math.signum(p.position.x - tempX)
                             && sigY == Math.signum((p.position.y - tempY)))
                         tempIterator.remove();
-                    else{
+                    else {
                         tempIterator.previous();
                         break;
                     }
@@ -371,7 +385,7 @@ class Game implements Serializable {
             tempAttackPointer = tempIterator.next();
             if (!pieceOnSquare(tempAttackPointer)) tempIterator.remove();
             else {
-                if (getPieceOn(tempAttackPointer).color == p.color)
+                if (getPieceOn(tempAttackPointer).color == p.color || getPieceOn(tempAttackPointer) instanceof Rock || getPieceOn(tempAttackPointer) instanceof River)
                     tempIterator.remove();
                 tempX = tempAttackPointer.x;
                 tempY = tempAttackPointer.y;
